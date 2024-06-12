@@ -45,7 +45,7 @@ Run macro:
  Input directory and options can be managed by the settings 
  (see explanation in macro):
     
-		root -l convert_phqmd.C(TString indir, TString dataset,	Int_t firstevent,
+	root -l convert_phqmd.C(TString indir, TString dataset,	Int_t firstevent,
 			Bool_t CreatePHQMDout, Bool_t FreezeCoords, Bool_t CreateWithUnstable,
 			Bool_t Convert, Bool_t ConvertAnti, Int_t ConvertMode, Bool_t WriteUnigen,
 			Bool_t WriteEventFreeze, Bool_t SavePHQMDout)
