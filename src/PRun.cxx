@@ -34,17 +34,19 @@ PRun::PRun()
     fIDilept(-1),
     fICq(-1),
     fIHard(-1),
+    fIDqpm(-1),
     fEyuk(-1),
     fEasy(-1),
     fEpair(-1),
     fEcoul(-1),
     fEvasy(-1),
     fEtapair(-1),
-    fIFragWig(-1)
+    fIFragWig(-1),
+    fIRelQmd(-1)
 {
 };
 
-PRun::PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Float_t DBimp, Int_t NUM, Int_t ISUBS, Float_t Tstart, Float_t Tfinal, Float_t dT, Int_t NTIME, Int_t Ieos, Int_t Iglue, Int_t Iphqmd, Int_t Inuclei, Int_t Ires, Int_t Idilept, Int_t Icq, Int_t Ihard, Int_t Eyuk, Int_t Easy, Int_t Epair, Int_t Ecoul, Float_t Evasy, Int_t Etapair, Int_t IfragWig)
+PRun::PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Float_t DBimp, Int_t NUM, Int_t ISUBS, Float_t Tstart, Float_t Tfinal, Float_t dT, Int_t NTIME, Int_t Ieos, Int_t Iglue, Int_t Iphqmd, Int_t Inuclei, Int_t Ires, Int_t Idilept, Int_t Icq, Int_t Ihard, Int_t Idqpm, Int_t Eyuk, Int_t Easy, Int_t Epair, Int_t Ecoul, Float_t Evasy, Int_t Etapair, Int_t IfragWig, Int_t Irelqmd)
   : TNamed("run","Run Header"),
     fGenerator(generator),
     fAProj(aProj),
@@ -70,22 +72,28 @@ PRun::PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t z
     fIDilept(Idilept),
     fICq(Icq),
     fIHard(Ihard),
+    fIDqpm(Idqpm),
     fEyuk(Eyuk),
     fEasy(Easy),
     fEpair(Epair),
     fEcoul(Ecoul),
     fEvasy(Evasy),
     fEtapair(Etapair),
-    fIFragWig(IfragWig)
+    fIFragWig(IfragWig),
+    fIRelQmd(Irelqmd)
 {
 
   fpProj = TMath::Sqrt(eLab*fProtonMass/2);
   fpTarg = -fpProj;
+  cout << "-----------Collision System----------- "                                << endl;
+  cout << endl;
   cout << "Centre of mass energy (GeV) : " << setprecision(3) << GetEnergyCM()     << endl;
   cout << "Laboratory energy (AGeV)    : " << setprecision(3) << eLab              << endl;
   cout << "Beam momentum (GeV/c)       : " << setprecision(3) << GetBeamMomentum() << endl;
   cout << "Projectile momentum (AGeV/c): " << setprecision(3) << fpProj            << endl;
   cout << "Target momentum (AGeV/c)    : " << setprecision(3) << fpTarg            << endl;
+  cout << "-------------------------------------- "                                << endl;
+  cout << endl;
 };
   
 PRun::~PRun()
@@ -168,6 +176,14 @@ TString PRun::GetMesSpecName() const
   if (fICq == 2) MesSpecName = "broadening";
   if (fICq == 3) MesSpecName = "drop. + broad.";
   return MesSpecName;
+}
+
+TString PRun::GetPHSDver() const
+{
+  TString PHSDvName;
+  if (fIDqpm == 0) PHSDvName = "PHSD4.X";
+  if (fIDqpm == 1) PHSDvName = "PHSD5.X with (T,muB) for QGP";
+  return PHSDvName;
 } 
 
 TString PRun::GetYesNo(Int_t Iyes) const
@@ -213,6 +229,7 @@ void PRun::Print(Option_t* /*option*/) const
        << "Dileptons                         : " << GetDilepName()          << endl
        << "Vector meson spectral function    : " << GetMesSpecName()        << endl
        << "With charm and bottom             : " << GetYesNo(fIHard)        << endl
+       << "PHSD version                      :"  << GetPHSDver()            << endl
        << "Yukawa potential in SACA          : " << GetYesNo(fEyuk)         << endl
        << "Asymmetry energy in SACA          : " << GetYesNo(fEasy)         << endl
        << "Coul. energy for fragm. select.   : " << GetYesNo(fEcoul)        << endl
@@ -220,6 +237,7 @@ void PRun::Print(Option_t* /*option*/) const
        << "Asymm. pot. energy at norm. dens. : " << fEvasy      << " MeV"   << endl
        << "Pairing pot. exponant in SACA     : " << GetYesNo(fEtapair)      << endl
        << "Light clusters acc. to Wig. dens. : " << GetYesNo(fIFragWig)     << endl
+       << "Relaxation of inital nuclei dt=0.5: " << GetYesNo(fIRelQmd)      << endl
        << "------------------------------------------------------------"    << endl;
       
 }

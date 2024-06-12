@@ -41,7 +41,8 @@ class PRun : public TNamed {
   Int_t   fIDilept;        // =0: No dileptons; =1: electron pair; =2:  muon pair
   Int_t   fICq;            // Vector meson spectral function:
                            // =0: Free rho's, =1: dropping mass, =2: broadening, =3: drop.+broad.
-  Int_t   fIHard;          // =1: With charm and bottom; =0: without 
+  Int_t   fIHard;          // =1: With charm and bottom; =0: without
+  Int_t   fIDqpm;          // =0: PHSD4.X; =1 PHSD5.X with (T,muB) for QGP
   Int_t   fEyuk;           // =1: Yukawa potential in SACA; =0: without
   Int_t   fEasy;           // =1: Asymmetry energy in SACA; =0: without
   Int_t   fEcoul;          // =1: Coulomb energy for fragment selection; =0 without
@@ -49,12 +50,13 @@ class PRun : public TNamed {
   Float_t fEvasy;          // Asymmetry potential energy at normal density (MeV)
   Float_t fEtapair;        // Pairing potential exponant (0.->only forbids unbound isotopes, 1., 0.65, 0.35 or 0.25) in SACA 
   Int_t   fIFragWig;       // =1: Light clusters formation according to the Wigner density, =0: no
+  Int_t   fIRelQmd;        // =1: relaxation of initial nucleons dt = 0.5; =0: without 
   
  public:
 
   PRun();
   virtual ~PRun();
-  PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Float_t DBimp, Int_t NUM, Int_t ISUBS, Float_t Tstart, Float_t Tfinal, Float_t dT, Int_t NTIME, Int_t Ieos, Int_t Iglue, Int_t Iphqmd, Int_t Inuclei, Int_t Ires, Int_t Idilept, Int_t Icq, Int_t Ihard, Int_t Eyuk, Int_t Easy, Int_t Epair, Int_t Ecoul, Float_t Evasy, Int_t Etapair, Int_t IfragWig);
+  PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Float_t DBimp, Int_t NUM, Int_t ISUBS, Float_t Tstart, Float_t Tfinal, Float_t dT, Int_t NTIME, Int_t Ieos, Int_t Iglue, Int_t Iphqmd, Int_t Inuclei, Int_t Ires, Int_t Idilept, Int_t Icq, Int_t Ihard, Int_t Idqpm, Int_t Eyuk, Int_t Easy, Int_t Epair, Int_t Ecoul, Float_t Evasy, Int_t Etapair, Int_t IfragWig, Int_t Irelqmd);
   void Print(Option_t* = "") const;
 
   inline TString GetGenerartor() const {return fGenerator;}      
@@ -81,7 +83,8 @@ class PRun : public TNamed {
   inline Int_t   GetIRes()       const {return fIRes;}           
   inline Int_t   GetIDilept()    const {return fIDilept;}          
   inline Int_t   GetICq()        const {return fICq;}              
-  inline Int_t   GetIHard()      const {return fIHard;}           
+  inline Int_t   GetIHard()      const {return fIHard;}
+  inline Int_t   GetIDqpm()      const {return fIDqpm;}
   inline Int_t   GetEyuk()       const {return fEyuk;}            
   inline Int_t   GetEasy()       const {return fEasy;}           
   inline Int_t   GetEcoul()      const {return fEcoul;}   
@@ -89,6 +92,7 @@ class PRun : public TNamed {
   inline Float_t GetEvasy()      const {return fEvasy;}      
   inline Float_t GetEtapair()    const {return fEtapair;}      
   inline Int_t   GetIFragWig()   const {return fIFragWig;}
+  inline Int_t   GetIRelQmd()    const {return fIRelQmd;}
 
   Float_t GetpProj() const;   
   Float_t GetpTarg() const;
@@ -103,6 +107,7 @@ class PRun : public TNamed {
   TString GetPhaseName() const;
   TString GetDilepName() const;
   TString GetMesSpecName() const;
+  TString GetPHSDver() const;
   TString GetYesNo(Int_t Iyes) const;
   bool    Int2Bool(Int_t var)  const;
 

@@ -343,14 +343,14 @@ void PConverter::CalculateFreezOutCoord(std::vector<PBaryon_cluster> baryons_clu
 void PConverter::CreatePHeader()
 {
   /** Reads PHQMD run information from inputPHSD and write into root-header. **/
-    
+
   Int_t NUM, ISUBS, NTIME;
   Int_t aProj, zProj, aTarg, zTarg, IBweight;  
   Double_t eLab, bMin, bMax, DBimp, Tstart, Tfinal, dT;
-  Int_t Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard;
-  Int_t Eyuk, Easy, Epair, Ecoul, IfragWig;
+  Int_t Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard, Idqpm;
+  Int_t Eyuk, Easy, Epair, Ecoul, IfragWig, Irelqmd;
   Double_t Evasy, Etapair;
-    
+ 
   FILE *inputInfo = fopen(finputFileInfo, "r");
   
   fscanf(inputInfo, "%i %*[^\n]%*c", &aTarg);
@@ -370,6 +370,7 @@ void PConverter::CreatePHeader()
   fscanf(inputInfo, "%i %*[^\n]%*c", &Idilept);
   fscanf(inputInfo, "%i %*[^\n]%*c", &Icq);
   fscanf(inputInfo, "%i %*[^\n]%*c", &Ihard);
+  fscanf(inputInfo, "%i %*[^\n]%*c", &Idqpm);
   fscanf(inputInfo, "%i %*[^\n]%*c", &IBweight);
   fscanf(inputInfo, "%*[^\n]%*c");
   fscanf(inputInfo, "%i %*[^\n]%*c", &Inuclei);
@@ -387,15 +388,18 @@ void PConverter::CreatePHeader()
   fscanf(inputInfo, "%lf %*[^\n]%*c", &Etapair);
   fscanf(inputInfo, "%i %*[^\n]%*c", &Ieos);
   fscanf(inputInfo, "%i %*[^\n]%*c", &Ires);  
-  if (fscanf(inputInfo, "%i %*[^\n]%*c", &IfragWig) == EOF)
+  fscanf(inputInfo, "%i %*[^\n]%*c", &IfragWig);
+  fscanf(inputInfo, "%*[^\n]%*c");
+  fscanf(inputInfo, "%*[^\n]%*c");
+  if (fscanf(inputInfo, "%i %*[^\n]%*c", &Irelqmd) == EOF)
     throw runtime_error("Unexpected end of file " + finputFileInfo + ".\n ");
 
   Int_t nEvents = NUM*ISUBS;
   cout << endl;
-  cout << nEvents << " events"  << endl;
-  cout << NTIME << " timesteps" <<endl;
- 
-  fpheader = new PRun ("phqmd", aProj, zProj, aTarg, zTarg, eLab, bMin, bMax, IBweight, DBimp, NUM, ISUBS, Tstart, Tfinal, dT, NTIME, Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard, Eyuk, Easy, Epair, Ecoul, Evasy, Etapair, IfragWig);
+  cout << "Conversion of " << nEvents << " events with " << NTIME << " timesteps" <<endl;
+  cout << endl;
+  
+  fpheader = new PRun ("phqmd", aProj, zProj, aTarg, zTarg, eLab, bMin, bMax, IBweight, DBimp, NUM, ISUBS, Tstart, Tfinal, dT, NTIME, Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard, Idqpm, Eyuk, Easy, Epair, Ecoul, Evasy, Etapair, IfragWig, Irelqmd);
 
   foutputPHQMD->cd();
   fpheader->Write();
@@ -417,29 +421,29 @@ void PConverter::CreatePEventsHadrons()
   feventH = new PEventHadrons();
   ftreeH = new TTree (treename, treename);
   ftreeH->Branch ("event", "PEventHadrons", &feventH, 12800000);
-      
+
   for (int isub = 0; isub < fpheader->GetSub(); isub++) {  // loop over all subsequent runs
     for (int inum = 0; inum < fpheader->GetNum(); inum ++) {  // loop over all parallel runs
 
       Int_t nHadrons, eventId, ISub, INum, nParticipants;
       Float_t impactpar;
       std::array<Float_t,4> phi, psi;
-      Int_t pdgId, charge, PHSDId, processId, infoId;
-      Float_t Px, Py, Pz, energy, xposfo, yposfo, zposfo, timefo, xpfo, ypfo, zpfo, densityB, densityE;
+      Int_t pdgId, charge, PHSDId, baryonId, mesonId, processId, infoId;
+      Float_t Px, Py, Pz, energy, xposfo, yposfo, zposfo, timefo, xpfo, ypfo, zpfo, densityB, densityE, ratqgp;
       
       //Get Hadrons from phsd.dat
       
       foutputPHQMD->cd();
       feventH->Clear();
       eventId = fFirstEvent + isub*fpheader->GetNum() + inum;
-      
-      if(fscanf(BulkFile, "%i %i %i %f %*i\n", &nHadrons, &ISub, &INum, &impactpar)==EOF)
+
+      if(fscanf(BulkFile, "%i %i %i %f %*i %*i %*i %*f %f\n", &nHadrons, &ISub, &INum, &impactpar, &ratqgp)==EOF)
 	throw runtime_error("Unexpected end of file phsd.dat at run " + to_string(inum));	
       if(fscanf(BulkFile, "%i %f %f %f %f %f %f %f %f\n", &nParticipants, &phi.at(0), &psi.at(0), &phi.at(1), &psi.at(1), &phi.at(2), &psi.at(2), &phi.at(3), &psi.at(3))==EOF)  
 	throw runtime_error("Unexpected end of file phsd.dat at run " + to_string(inum));
       
-      feventH->SetParameters(eventId, nHadrons, nParticipants, ISub, INum, impactpar, phi, psi);
- 
+      feventH->SetParameters(eventId, nHadrons, nParticipants, ISub, INum, impactpar, phi, psi, ratqgp);
+
       for (int i = 0; i < nHadrons; i++) {
 	if (fFreezeCoords == kTRUE) {
 	  if(fscanf(BulkFile, "%i %i %f %f %f %f %i %i %i %f %f %f %f %f %f %f %f %f\n", &pdgId, &charge, &Px, &Py, &Pz, &energy, &processId, &infoId, &PHSDId, &xposfo, &yposfo, &zposfo, &timefo, &xpfo, &ypfo, &zpfo, &densityB, &densityE)==EOF) {	
@@ -452,12 +456,16 @@ void PConverter::CreatePEventsHadrons()
 	  }
 	}
 	      
-	if(TMath::Abs(pdgId) == 100121) pdgId = 1000010020*charge; // correct pdg-code for kinetic deuterons    
+	if (TMath::Abs(pdgId) == 100121) pdgId = 1000010020*charge; // correct pdg-code for kinetic deuterons
+
+	if (TMath::Abs(pdgId) < 1000) { mesonId = PHSDId; baryonId = -1; }
+	else { baryonId = PHSDId; mesonId = -1;	}
+	
 	foutputPHQMD->cd();
 	if (fFreezeCoords == kTRUE)
-	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, PHSDId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, densityB, densityE);
+	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, densityB, densityE);
 	else
-	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, PHSDId);
+	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId);
       }
       foutputPHQMD->cd();
       ftreeH->Fill();
@@ -465,7 +473,7 @@ void PConverter::CreatePEventsHadrons()
   }
   foutputPHQMD->cd();
   ftreeH->Write();
-  
+    
   if(fscanf(BulkFile, "%*[^\n]%*c")!=EOF) 	
     throw runtime_error("\n  Error when reading phsd.dat: File not read until the end. Check input format.\n ");	
   fclose(BulkFile);
@@ -618,7 +626,7 @@ void PConverter::MakeMaps()
       ftreeH->GetEntry(ieventH);
       for (int ihadron = 0 ; ihadron < feventH->GetNHadrons() ; ihadron++) {
 	PHadron hadron = feventH->GetHadron(ihadron);
-	if (hadron.GetPHSDId() == baryon.GetBaryonId()) {
+	if (hadron.GetBaryonId() == baryon.GetBaryonId()) {
 	  fbaryons2hadrons[ieventH][baryon.GetBaryonId()] = ihadron;
 	  break;
 	}
@@ -699,7 +707,7 @@ void PConverter::ConvertPHQMD()
  
       foutputPHQMD->cd(); // Loop over hadrons
       for (auto hadron : feventH->GetHadronList()) {
-	auto it_bar2had = fbaryons2hadrons[ieventH].find(hadron.GetPHSDId());	
+	auto it_bar2had = fbaryons2hadrons[ieventH].find(hadron.GetBaryonId());	
 	if (it_bar2had != fbaryons2hadrons[ieventH].end()) continue; // baryon is participating in MST
 	if (fWriteUnigen == kTRUE) {
 	  output->cd();

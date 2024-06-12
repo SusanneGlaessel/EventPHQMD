@@ -1,7 +1,8 @@
 //************************************************************************************************************************************************
 /** author: Susanne Glaessel (Universitaet Frankfurt)
- ** Macro for creating a root-file from all PHQMD output files and/or a UniGen-file  
- ** with complete events (or root-file with with freeze-out coordinates)
+ ** Macro for creating a root-file from all PHQMD output files (PHQMD version 5.2 Winn) 
+ ** and/or a UniGen-file with complete events (and/or root-file with with freeze-out
+ ** coordinates)
  ** 
  ** This macro:
  **
@@ -83,17 +84,16 @@
 #include "TTree.h"
 
 void convert_phqmd(TString indir             = "",
-		   //TString dataset           = "00001",
-		   TString dataset           = "",
+		   TString dataset           = "00001",
 		   Int_t  firstevent         = 0,
 		   Bool_t CreatePHQMDout     = kTRUE,
-		   Bool_t FreezeCoords       = kTRUE,
+		   Bool_t FreezeCoords       = kFALSE,
 		   Bool_t CreateWithUnstable = kFALSE,
 		   Bool_t Convert            = kTRUE,
 		   Int_t  ConvertMode        = 1,
 		   Bool_t ConvertAnti        = kTRUE,
 		   Bool_t WriteUnigen        = kTRUE,
-		   Bool_t WriteEventFreeze   = kTRUE,
+		   Bool_t WriteEventFreeze   = kFALSE,
 		   Bool_t SavePHQMDout       = kTRUE)
 {
   PConverter* pconverter = new PConverter();

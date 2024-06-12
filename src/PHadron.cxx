@@ -9,7 +9,8 @@ PHadron::PHadron()
     fEnergy(0.),
     fProcessId(0),
     fInfoId(0),
-    fPHSDId(0),
+    fBaryonId(-1),
+    fMesonId(-1),
     fDensityB(0.0),
     fDensityE(0.0)
 {
@@ -18,12 +19,13 @@ PHadron::PHadron()
   fPFreeze.SetXYZ(0.,0.,0.);
 };
 
-PHadron::PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t PHSDId, Float_t xposfo, Float_t yposfo, Float_t zposfo , Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t densityB, Float_t densityE)
+PHadron::PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId, Float_t xposfo, Float_t yposfo, Float_t zposfo , Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t densityB, Float_t densityE)
   : fPdgId(pdgId),
     fEnergy(energy),
     fProcessId(processId),
     fInfoId(infoId),
-    fPHSDId(PHSDId),
+    fBaryonId(baryonId),
+    fMesonId(mesonId),
     fDensityB(densityB),
     fDensityE(densityE)
 {
@@ -33,12 +35,13 @@ PHadron::PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy
 
 };
 
-PHadron::PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t PHSDId)
+PHadron::PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId)
   : fPdgId(pdgId),
     fEnergy(energy),
     fProcessId(processId),
     fInfoId(infoId),
-    fPHSDId(PHSDId),
+    fBaryonId(baryonId),
+    fMesonId(mesonId),
     fDensityB(0.0),
     fDensityE(0.0)
 {
@@ -79,12 +82,13 @@ void PHadron::Print() const
        << "Momentum (px, py, pz) (GeV)              : "  << fP.X() << ", " << fP.Y() << ", " << fP.Z() << endl
        << "Energy (GeV)                             : "  << fEnergy       << endl
        << "ProcessId                                : "  << fProcessId    << endl;
-    if ( TMath::Abs(fPdgId) < 1000)
-      cout << "ParentId                                 : " << fInfoId << endl;
-    else
-      cout << "Participation in MST-routine             : " << GetYesNo(fInfoId) << endl;
-  cout << "PHSD-Id                                  : "  << fPHSDId       << endl
-       << "Freezeout position (x, y, z) (fm)        : "  << fXTFreeze.X() << ", " << fXTFreeze.Y() << ", " << fXTFreeze.Z() << endl
+    if ( fBaryonId == -1) {
+      cout << "MesonId                                  : " << fMesonId  <<endl;  
+      cout << "ParentId                                 : " << fInfoId << endl; }
+    else {
+      cout << "BaryonId                                 : " << fBaryonId  <<endl; 
+      cout << "Participation in MST-routine             : " << GetYesNo(fInfoId) << endl; }
+  cout << "Freezeout position (x, y, z) (fm)        : "  << fXTFreeze.X() << ", " << fXTFreeze.Y() << ", " << fXTFreeze.Z() << endl
        << "Freezeout time (fm)                      : "  << fXTFreeze.T() << endl
        << "Freezeout momentum (px, py, pz) (GeV)    : "  << fPFreeze.X()  << ", " << fPFreeze.Y()  << ", " << fPFreeze.Z()  << endl
        << "Baryon density at freezeout              : "  << fDensityB     << endl
