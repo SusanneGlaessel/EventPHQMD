@@ -1,10 +1,12 @@
 # EventPHQMD
 
 ## General information
-EventPHQMD converts PHQMD output files:
-- creates root-file containing all unconverted information from the PHQMD output
-- converts PHQMD output into complete events with hadrons & clusters (UniGen format
-  or root-format including freeze-out momentum) 
+EventPHQMD converts PHQMD output files into:
+- a root-file containing all unconverted information from the PHQMD output (no clusters)
+- a root-file containing full events with hadrons & clusters (UniGen format or root-format
+including freeze-out momentum)
+
+branch *main* is compatible with PHQMD version PHQMD41_2023 & PHQMD41_2023_Reduced
 
 ## Requirements
 
@@ -19,32 +21,38 @@ UniGen classes are not required, they are part of the installation.
 
 Set rootsource
 
- source ROOTSOURCE/bin/thisroot.sh
+	source ROOTSOURCE/bin/thisroot.sh
 
 Install
 
- mkdir build install
- cd build
- cmake -DCMAKE_INSTALL_PREFIX=../install ../
- make -j install
+	mkdir build install
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=../install ../
+	make -j install
 
 Load root libraries
- cd ../macro
- root -l rootlogon.C
+
+	cd ../macro
+	root -l rootlogon.C
 
 ## Run
 
 Run macro:
  
- cd macro
-
- root convert_phqmd.C
+	cd macro
+	root -l convert_phqmd.C
 
  Input directory and options can be managed by the settings 
  (see explanation in macro):
-
- root convert_phqmd.C'(indir, dataset, firstevent, CreatePHQMDout, FreezeCoords, 
-                      CreateWithUnstable, Convert, ConvertAnti, ConvertMode, 
-                      WriteUnigen, WriteEventFreeze, SavePHQMDout)'
+    
+	root -l convert_phqmd.C(TString indir, TString dataset,	Int_t firstevent,
+			Bool_t CreatePHQMDout, Bool_t FreezeCoords, Bool_t CreateWithUnstable,
+			Bool_t Convert, Bool_t ConvertAnti, Int_t ConvertMode, Bool_t WriteUnigen,
+			Bool_t WriteEventFreeze, Bool_t SavePHQMDout)
  
  For the conversion of clusters the cluster_table.root is required.
+ 
+ To make changes in the cluster\_table.root, update cluster\_table.dat and run
+
+	cd macro
+	root -l write_clustertree.C

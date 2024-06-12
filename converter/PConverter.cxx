@@ -392,8 +392,8 @@ void PConverter::CreatePHeader()
 
   Int_t nEvents = NUM*ISUBS;
   cout << endl;
-  cout << nEvents << " events"  << endl;
-  cout << NTIME << " timesteps" <<endl;
+  cout << "Conversion of " << nEvents << " events with " << NTIME << " timesteps" <<endl;
+  cout << endl;  
  
   fpheader = new PRun ("phqmd", aProj, zProj, aTarg, zTarg, eLab, bMin, bMax, IBweight, DBimp, NUM, ISUBS, Tstart, Tfinal, dT, NTIME, Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard, Eyuk, Easy, Epair, Ecoul, Evasy, Etapair, IfragWig);
 
@@ -424,7 +424,7 @@ void PConverter::CreatePEventsHadrons()
       Int_t nHadrons, eventId, ISub, INum, nParticipants;
       Float_t impactpar;
       std::array<Float_t,4> phi, psi;
-      Int_t pdgId, charge, PHSDId, processId, infoId;
+      Int_t pdgId, charge, PHSDId, baryonId, mesonId, processId, infoId;
       Float_t Px, Py, Pz, energy, xposfo, yposfo, zposfo, timefo, xpfo, ypfo, zpfo, densityB, densityE;
       
       //Get Hadrons from phsd.dat
@@ -452,12 +452,16 @@ void PConverter::CreatePEventsHadrons()
 	  }
 	}
 	      
-	if(TMath::Abs(pdgId) == 100121) pdgId = 1000010020*charge; // correct pdg-code for kinetic deuterons    
-	foutputPHQMD->cd();
+	if (TMath::Abs(pdgId) == 100121) pdgId = 1000010020*charge; // correct pdg-code for kinetic deuterons    
+        
+        if (TMath::Abs(pdgId) < 1000) { mesonId = PHSDId; baryonId = -1; }
+	else { baryonId = PHSDId; mesonId = -1;	}	
+
+        foutputPHQMD->cd();
 	if (fFreezeCoords == kTRUE)
-	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, PHSDId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, densityB, densityE);
+	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, densityB, densityE);
 	else
-	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, PHSDId);
+	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId);
       }
       foutputPHQMD->cd();
       ftreeH->Fill();
@@ -618,7 +622,7 @@ void PConverter::MakeMaps()
       ftreeH->GetEntry(ieventH);
       for (int ihadron = 0 ; ihadron < feventH->GetNHadrons() ; ihadron++) {
 	PHadron hadron = feventH->GetHadron(ihadron);
-	if (hadron.GetPHSDId() == baryon.GetBaryonId()) {
+	if (hadron.GetBaryonId() == baryon.GetBaryonId()) {
 	  fbaryons2hadrons[ieventH][baryon.GetBaryonId()] = ihadron;
 	  break;
 	}

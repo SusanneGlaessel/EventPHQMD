@@ -47,8 +47,8 @@ class PEventHadrons : public TObject  {
   inline void SetB             (Float_t b)                 {fB = b;}
   inline void SetPhi           (std::array<Float_t,4> phi) {fPhi = phi;}
   inline void SetPsi           (std::array<Float_t,4> psi) {fPhi = psi;}
-  void AddHadron        (Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t PHSDId, Float_t xposfo, Float_t yposfo, Float_t zposfo, Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t densityB, Float_t densityE);
-  void AddHadron        (Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t PHSDId);
+  void AddHadron        (Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId, Float_t xposfo, Float_t yposfo, Float_t zposfo, Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t densityB, Float_t densityE);
+  void AddHadron        (Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId);
 
   void Clear();
   

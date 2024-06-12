@@ -81,11 +81,15 @@ PRun::PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t z
 
   fpProj = TMath::Sqrt(eLab*fProtonMass/2);
   fpTarg = -fpProj;
+  cout << "-----------Collision System----------- "                                << endl;
+  cout << endl;
   cout << "Centre of mass energy (GeV) : " << setprecision(3) << GetEnergyCM()     << endl;
   cout << "Laboratory energy (AGeV)    : " << setprecision(3) << eLab              << endl;
   cout << "Beam momentum (GeV/c)       : " << setprecision(3) << GetBeamMomentum() << endl;
   cout << "Projectile momentum (AGeV/c): " << setprecision(3) << fpProj            << endl;
   cout << "Target momentum (AGeV/c)    : " << setprecision(3) << fpTarg            << endl;
+  cout << "-------------------------------------- "                                << endl;
+  cout << endl;
 };
   
 PRun::~PRun()

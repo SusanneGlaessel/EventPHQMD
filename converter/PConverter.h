@@ -39,7 +39,6 @@ class PConverter
 
   struct PBaryon_cluster {
   Int_t fPdgId;
-  Int_t fCharge;
   TVector3 fP;
   Float_t fEnergy;
   Float_t fEbin;
