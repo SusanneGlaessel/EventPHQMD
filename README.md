@@ -13,7 +13,7 @@ branch **PHQMD52 _Winn** is compatible with PHQMD version PHQMD52-Winn_2023
 ### Root
 https://root.cern/install/
 
-Root with c++17 standard is strongly recommended.
+Root with c++17 standard is recommended.
 
 UniGen classes are not required, they are part of the installation.
 
@@ -25,6 +25,8 @@ Set rootsource
 
 Install
 
+	git clone --branch PHQMD52_Winn git@github.com:SusanneGlaessel/EventPHQMD
+	cd EventPHQMD
 	mkdir build install
 	cd build
 	cmake -DCMAKE_INSTALL_PREFIX=../install ../
@@ -32,15 +34,15 @@ Install
 
 Load root libraries
 
-Path in rootlogon.C needs to be set to current directory:
+Path in macro/rootlogon.C needs to be set:
 
-	- for LINUX:
-	gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.so");
-	- for MAC:
-	gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD. dylib");
+for LINUX: gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.so");
+for MAC: gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD. dylib");
 
 	cd ../macro
 	root -l rootlogon.C
+
+
 
 ## Run
 
