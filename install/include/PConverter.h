@@ -56,7 +56,7 @@ class PConverter
   
   void CreatePHeader();
   void CreatePEventsHadrons();
-  void CreatePEventsBaryons(Bool_t CreateUnstable = kFALSE);
+  void CreatePEventsBaryons(Bool_t CreateWithUnstable = kFALSE);
 
   void WritePHQMDout();
   void ClosePHQMDout();

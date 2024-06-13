@@ -32,7 +32,7 @@ void PConverter::Init(TString indir, TString dataset, Bool_t CreatePHQMDout, Boo
   fIndir = indir;
 
   if (FreezeCoords == kFALSE && WriteEventFreeze == kTRUE)
-    throw runtime_error("EventFreeze can only be written if Freeze-out coordinates are availabe.");
+    throw runtime_error("EventFreeze can only be written if Freeze-out coordinates are available.");
   
   if (CreatePHQMDout == kFALSE && Convert == kFALSE)
     throw runtime_error("Either CreatePHQMDout or Convert must be set to true");
@@ -120,14 +120,14 @@ void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t
   else {
     frootFileP =  Form("%s/root/%s.phqmd_out.root",fIndir.Data(),fDataset.Data());
     if (fWriteUnigen == kTRUE) {
-      if (fConvertAnti == kTRUE)  frootFileDet    = Form("%s/unigen/%s.phqmd.root",fIndir.Data(),fDataset.Data());
-      if (fConvertAnti == kFALSE) frootFileDet    = Form("%s/unigen/%s.phqmd_noanti.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kTRUE)  frootFileDet    = Form("%s/root/unigen/%s.phqmd.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileDet    = Form("%s/root/unigen/%s.phqmd_noanti.root",fIndir.Data(),fDataset.Data());
     } 
     if (fWriteEventFreeze == kTRUE) {
-      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/freeze/%s.phqmd_freeze.root",fIndir.Data(),fDataset.Data());
-      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/freeze/%s.phqmd_freeze_noanti.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze_noanti.root",fIndir.Data(),fDataset.Data());
     }
-    fNameClustertable = Form("%s/cluster_table.root",fIndir.Data()); 
+    fNameClustertable = Form("%s/root/cluster_table.root",fIndir.Data()); 
   }
 }
 
@@ -479,26 +479,18 @@ void PConverter::CreatePEventsHadrons()
   fclose(BulkFile);
 }
 
-void PConverter::CreatePEventsBaryons(Bool_t CreateWithUnstable) 
+void PConverter::CreatePEventsBaryons(Bool_t CreateUnstable) 
 {
   /** Reads information about baryons from fort.891/fort.881/fort.791/fort.781 and write into root-event. **/
   
   TString treename; TString inputFileBaryonFriga; TString inputFileBaryonFrigaAnti;
   
-  if (CreateWithUnstable == kFALSE) {
-    treename = "events_baryons";
-    inputFileBaryonFriga = "fort.891";
-    inputFileBaryonFrigaAnti = "fort.881";
-  }
-  if (CreateWithUnstable == kTRUE) {
-    treename = "events_baryons_unstable";
-    inputFileBaryonFriga = "fort.791";
-    inputFileBaryonFrigaAnti = "fort.781";
-  }
-    
-  FILE *BaryonFrigaFile = fopen(inputFileBaryonFriga, "r");
+  if (CreateUnstable == kFALSE) treename = "events_baryons";
+  if (CreateUnstable == kTRUE) treename = "events_baryons_unstable";
+  
+  FILE *BaryonFrigaFile = fopen(finputFileBaryonFriga, "r");
   FILE *BaryonFrigaFileAnti;
-  if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(inputFileBaryonFrigaAnti, "r");
+  if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(finputFileBaryonFrigaAnti, "r");
   
   feventB = new PEventBaryons();
   ftreeB = new TTree (treename, treename);
@@ -507,7 +499,7 @@ void PConverter::CreatePEventsBaryons(Bool_t CreateWithUnstable)
   for (int isub = 0; isub < fpheader->GetSub(); isub++) {  // loop over all subsequent runs
     for (int it = 0; it < fpheader->GetNTime() + 1; it++) { // loop over all timesteps
       for (int inum = 0; inum < fpheader->GetNum(); inum ++) {  // loop over all parallel runs
-
+	
 	Int_t eventId = fFirstEvent + isub*fpheader->GetNum() + inum;
 		
 	Int_t INum, ISub, nBaryons, nAntiBaryons;
@@ -519,17 +511,17 @@ void PConverter::CreatePEventsBaryons(Bool_t CreateWithUnstable)
 
 	foutputPHQMD->cd();
 	feventB->Clear();
-
+	
 	if(fscanf(BaryonFrigaFile, "%i %i %f %f %*i %*i %*i %*i %*i %*f %*i\n", &INum, &ISub, &impactpar, &time)==EOF)
 	  throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum));
- 	if(fscanf(BaryonFrigaFile, "%*[^\n]%*c")==EOF)	  
+	if(fscanf(BaryonFrigaFile, "%*[^\n]%*c")==EOF)	  
  	  throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum));
- 	if(fscanf(BaryonFrigaFile, "%i %*i %*i %f\n", &nBaryons, &rcluster)==EOF)
+	if(fscanf(BaryonFrigaFile, "%i %*i %*i %f\n", &nBaryons, &rcluster)==EOF)
 	  throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum));
 
 	foutputPHQMD->cd();
 	feventB->SetParameters(eventId, nBaryons, 0, ISub, INum, impactpar, rcluster, it, time); 
-
+	
 	for (int i = 0; i < nBaryons; i++) {
 	  if(fscanf(BaryonFrigaFile, "%*i %i %f %f %f %f %f %f %f %i %i %i %*i %*i %i %i %f %f\n", &charge, &Px, &Py, &Pz, &Xpos, &Ypos, &Zpos, &Mass, &clusterId, &nBary, &baryonId, &prodId, &prodchanel, &prodtime, &Ebin)==EOF) {
 	    throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum) + "timestep" + to_string(it) + " particle " + to_string(i));

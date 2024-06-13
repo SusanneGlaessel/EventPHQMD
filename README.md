@@ -32,6 +32,16 @@ Install
 
 Load root libraries
 
+Path in rootlogon.C needs to be set to current directory:
+
+- for LINUX:
+
+gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.dylib");
+
+- for MAC:
+
+gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.so");
+
 	cd ../macro
 	root -l rootlogon.C
 

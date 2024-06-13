@@ -1,3 +1,3 @@
 {
-gSystem->Load("~/EventPHQMD/install/lib/libEventPHQMD.dylib");
+gSystem->Load("~/GitHub/EventPHQMD_52Winn/install/lib/libEventPHQMD.dylib");
 }

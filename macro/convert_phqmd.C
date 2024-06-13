@@ -84,11 +84,12 @@
 #include "TTree.h"
 
 void convert_phqmd(TString indir             = "",
-		   TString dataset           = "00001",
+		   //TString dataset           = "00001",
+		   TString dataset           = "",
 		   Int_t  firstevent         = 0,
 		   Bool_t CreatePHQMDout     = kTRUE,
 		   Bool_t FreezeCoords       = kFALSE,
-		   Bool_t CreateWithUnstable = kFALSE,
+		   Bool_t CreateWithUnstable = kTRUE,
 		   Bool_t Convert            = kTRUE,
 		   Int_t  ConvertMode        = 1,
 		   Bool_t ConvertAnti        = kTRUE,
