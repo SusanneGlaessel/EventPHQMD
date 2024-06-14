@@ -19,13 +19,13 @@ UniGen classes are not required, they are part of the installation.
 
 ## Installation
 
-Set rootsource
-
-	source ROOTSOURCE/bin/thisroot.sh
-
 Clone
 
 	git clone --branch PHQMD52_Winn git@github.com:SusanneGlaessel/EventPHQMD
+
+Set rootsource
+
+	source path\_to\_root/bin/thisroot.sh
 
 Install
 
@@ -37,13 +37,14 @@ Install
 
 Load root libraries
 
-Set path in macro/rootlogon.C:
-
-LINUX: gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.so");
-MAC: gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD. dylib");
-
 	cd ../macro
 	root -l rootlogon.C
+	
+The path\_to\_EventPHQMD in macro/rootlogon.C needs to be replaced by the acutal
+location of EventPHQMD:
+
+	LINUX: gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.so");
+	MAC:   gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD. dylib");
 
 ## Run
 
