@@ -6,25 +6,30 @@ EventPHQMD converts PHQMD output files into:
 - a root-file containing full events with hadrons & clusters (UniGen format or root-format
 including freeze-out momentum)
 
-branch *main* is compatible with PHQMD version PHQMD41_2023 & PHQMD41_2023_Reduced
+branch **main** is compatible with PHQMD version PHQMD41_2023 & PHQMD41_2023_Reduced
 
 ## Requirements
 
 ### Root
 https://root.cern/install/
 
-Root with c++17 standard is strongly recommended.
+Root with c++17 standard is recommended.
 
 UniGen classes are not required, they are part of the installation.
 
 ## Installation
 
+Clone
+
+	git clone --branch PHQMD52_Winn git@github.com:SusanneGlaessel/EventPHQMD
+
 Set rootsource
 
-	source ROOTSOURCE/bin/thisroot.sh
+	source path_to_root/bin/thisroot.sh
 
 Install
 
+	cd EventPHQMD
 	mkdir build install
 	cd build
 	cmake -DCMAKE_INSTALL_PREFIX=../install ../
@@ -34,6 +39,12 @@ Load root libraries
 
 	cd ../macro
 	root -l rootlogon.C
+
+The *path\_to\_installation* in macro/rootlogon.C needs to be replaced by the acutal
+location of EventPHQMD:
+
+	LINUX: gSystem->Load("path_to_installation/install/lib/libEventPHQMD.so");
+	MAC:   gSystem->Load("path_to_installation/install/lib/libEventPHQMD.dylib");
 
 ## Run
 

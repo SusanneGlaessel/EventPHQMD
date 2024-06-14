@@ -32,7 +32,7 @@ void PConverter::Init(TString indir, TString dataset, Bool_t CreatePHQMDout, Boo
   fIndir = indir;
 
   if (FreezeCoords == kFALSE && WriteEventFreeze == kTRUE)
-    throw runtime_error("EventFreeze can only be written if Freeze-out coordinates are availabe.");
+    throw runtime_error("EventFreeze can only be written if Freeze-out coordinates are available.");
   
   if (CreatePHQMDout == kFALSE && Convert == kFALSE)
     throw runtime_error("Either CreatePHQMDout or Convert must be set to true");
@@ -120,14 +120,14 @@ void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t
   else {
     frootFileP =  Form("%s/root/%s.phqmd_out.root",fIndir.Data(),fDataset.Data());
     if (fWriteUnigen == kTRUE) {
-      if (fConvertAnti == kTRUE)  frootFileDet    = Form("%s/unigen/%s.phqmd.root",fIndir.Data(),fDataset.Data());
-      if (fConvertAnti == kFALSE) frootFileDet    = Form("%s/unigen/%s.phqmd_noanti.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kTRUE)  frootFileDet    = Form("%s/root/unigen/%s.phqmd.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileDet    = Form("%s/root/unigen/%s.phqmd_noanti.root",fIndir.Data(),fDataset.Data());
     } 
     if (fWriteEventFreeze == kTRUE) {
-      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/freeze/%s.phqmd_freeze.root",fIndir.Data(),fDataset.Data());
-      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/freeze/%s.phqmd_freeze_noanti.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze_noanti.root",fIndir.Data(),fDataset.Data());
     }
-    fNameClustertable = Form("%s/cluster_table.root",fIndir.Data()); 
+    fNameClustertable = Form("%s/root/cluster_table.root",fIndir.Data()); 
   }
 }
 
@@ -453,11 +453,11 @@ void PConverter::CreatePEventsHadrons()
 	}
 	      
 	if (TMath::Abs(pdgId) == 100121) pdgId = 1000010020*charge; // correct pdg-code for kinetic deuterons    
-        
-        if (TMath::Abs(pdgId) < 1000) { mesonId = PHSDId; baryonId = -1; }
+
+	if (TMath::Abs(pdgId) < 1000) { mesonId = PHSDId; baryonId = -1; }
 	else { baryonId = PHSDId; mesonId = -1;	}	
 
-        foutputPHQMD->cd();
+	foutputPHQMD->cd();
 	if (fFreezeCoords == kTRUE)
 	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, densityB, densityE);
 	else
@@ -475,26 +475,19 @@ void PConverter::CreatePEventsHadrons()
   fclose(BulkFile);
 }
 
-void PConverter::CreatePEventsBaryons(Bool_t CreateWithUnstable) 
+void PConverter::CreatePEventsBaryons(Bool_t CreateUnstable) 
 {
   /** Reads information about baryons from fort.891/fort.881/fort.791/fort.781 and write into root-event. **/
   
   TString treename; TString inputFileBaryonFriga; TString inputFileBaryonFrigaAnti;
   
-  if (CreateWithUnstable == kFALSE) {
-    treename = "events_baryons";
-    inputFileBaryonFriga = "fort.891";
-    inputFileBaryonFrigaAnti = "fort.881";
-  }
-  if (CreateWithUnstable == kTRUE) {
-    treename = "events_baryons_unstable";
-    inputFileBaryonFriga = "fort.791";
-    inputFileBaryonFrigaAnti = "fort.781";
-  }
+  if (CreateUnstable == kFALSE) treename = "events_baryons";
+  if (CreateUnstable == kTRUE) treename = "events_baryons_unstable";
+
     
-  FILE *BaryonFrigaFile = fopen(inputFileBaryonFriga, "r");
+  FILE *BaryonFrigaFile = fopen(finputFileBaryonFriga, "r");
   FILE *BaryonFrigaFileAnti;
-  if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(inputFileBaryonFrigaAnti, "r");
+  if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(finputFileBaryonFrigaAnti, "r");
   
   feventB = new PEventBaryons();
   ftreeB = new TTree (treename, treename);
@@ -703,7 +696,7 @@ void PConverter::ConvertPHQMD()
  
       foutputPHQMD->cd(); // Loop over hadrons
       for (auto hadron : feventH->GetHadronList()) {
-	auto it_bar2had = fbaryons2hadrons[ieventH].find(hadron.GetPHSDId());	
+	auto it_bar2had = fbaryons2hadrons[ieventH].find(hadron.GetBaryonId());	
 	if (it_bar2had != fbaryons2hadrons[ieventH].end()) continue; // baryon is participating in MST
 	if (fWriteUnigen == kTRUE) {
 	  output->cd();
