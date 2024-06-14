@@ -40,11 +40,11 @@ Load root libraries
 	cd ../macro
 	root -l rootlogon.C
 	
-The path\_to\_EventPHQMD in macro/rootlogon.C needs to be replaced by the acutal
+The *path\_to\_EventPHQMD* in macro/rootlogon.C needs to be replaced by the acutal
 location of EventPHQMD:
 
 	LINUX: gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.so");
-	MAC:   gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD. dylib");
+	MAC:   gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.dylib");
 
 ## Run
 
