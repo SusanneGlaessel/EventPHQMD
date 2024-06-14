@@ -25,7 +25,7 @@ Clone
 
 Set rootsource
 
-	source path\_to\_root/bin/thisroot.sh
+	source path_to_root/bin/thisroot.sh
 
 Install
 
@@ -40,11 +40,11 @@ Load root libraries
 	cd ../macro
 	root -l rootlogon.C
 	
-The *path\_to\_EventPHQMD* in macro/rootlogon.C needs to be replaced by the acutal
+The *path\_to\_installation* in macro/rootlogon.C needs to be replaced by the acutal
 location of EventPHQMD:
 
-	LINUX: gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.so");
-	MAC:   gSystem->Load("path\_to\_EventPHQMD/install/lib/libEventPHQMD.dylib");
+	LINUX: gSystem->Load("path_to_installation/install/lib/libEventPHQMD.so");
+	MAC:   gSystem->Load("path_to_installation/install/lib/libEventPHQMD.dylib");
 
 ## Run
 
