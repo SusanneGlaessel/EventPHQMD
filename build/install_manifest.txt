@@ -1,0 +1,15 @@
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/PEventHadrons.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/PEventBaryons.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/PRun.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/PBaryon.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/PHadron.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/RunFreeze.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/EventFreeze.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/ParticleFreeze.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/URun.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/UEvent.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/UParticle.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/include/PConverter.h
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/lib/libEventPHQMD_rdict.pcm
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/lib/libEventPHQMD.rootmap
+/Users/susanne/GitHub/EventPHQMD_52Winn/install/lib/libEventPHQMD.dylib

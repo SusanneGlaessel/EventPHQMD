@@ -1,0 +1,26 @@
+[ libEventPHQMD.dylib ]
+# List of selected classes
+class EventFreeze
+class PBaryon
+class PConverter
+class PEventBaryons
+class PEventHadrons
+class PHadron
+class PRun
+class ParticleFreeze
+class RunFreeze
+class UEvent
+class UParticle
+class URun
+header EventFreeze.h
+header PBaryon.h
+header PConverter.h
+header PEventBaryons.h
+header PEventHadrons.h
+header PHadron.h
+header PRun.h
+header ParticleFreeze.h
+header RunFreeze.h
+header UEvent.h
+header UParticle.h
+header URun.h
