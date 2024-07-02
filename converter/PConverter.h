@@ -38,16 +38,26 @@ class PConverter
   virtual ~PConverter() = default;
 
   struct PBaryon_cluster {
-  Int_t fPdgId;
-  TVector3 fP;
-  Float_t fEnergy;
-  Float_t fEbin;
-  TLorentzVector fXTFreeze;
-  TVector3 fPFreeze;
-  Int_t fBaryonId;
-  Int_t fClusterId;
+    Int_t fPdgId;
+    TVector3 fP;
+    Float_t fEnergy;
+    Float_t fEbin;
+    TLorentzVector fXTFreeze;
+    TVector3 fPFreeze;
+    Int_t fBaryonId;
+    Int_t fClusterId;
   PBaryon_cluster(Int_t baryonId, Int_t PdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TVector3 PFreeze, Float_t Ebin) : fBaryonId(baryonId), fPdgId(PdgId), fP(P), fEnergy(energy), fXTFreeze(XTFreeze), fPFreeze(PFreeze), fEbin(Ebin) {};
-};
+  };
+
+  struct ClusterEntry {
+    Int_t fPdgId;
+    Int_t fNProt;
+    Int_t fNBary0;
+    Int_t fNLamb;
+    Int_t fNSigm;
+  ClusterEntry() : fPdgId(-1), fNProt(-1), fNBary0(-1), fNLamb(-1), fNSigm(-1) {};
+  ClusterEntry(Int_t pdgId, Int_t nProt, Int_t nBary0, Int_t nLamb, Int_t nSigm) : fPdgId(pdgId), fNProt(nProt), fNBary0(nBary0), fNLamb(nLamb), fNSigm(nSigm) {};
+  };
 
   void Init(TString indir = "", TString dataset = "", Bool_t CreatePHQMDout = kTRUE, Bool_t FreezeCoords = kFALSE, Bool_t CreateOutWithUnstable = kFALSE, Bool_t Convert = kFALSE, Bool_t WriteUnigen = kTRUE, Bool_t ConvertMode = 0, Bool_t ConvertAnti = kTRUE, Bool_t WriteEventFreeze = kFALSE,  Int_t firstevent = 0);
   
@@ -72,8 +82,9 @@ class PConverter
   void InitConvert(Bool_t WriteUnigen = kTRUE, Bool_t WriteEventFreeze = kTRUE, Bool_t ConvertAnti = kTRUE);
 
   void ClusterTablePrint();
+  void GetClusterList();
   void GetPdgIdBaryon(Int_t charge, Int_t &pdgId, Bool_t IsAnti);
-  void GetClusterPdg(TTree * tClusterTable, std::vector<PBaryon_cluster> baryons_cluster, Int_t clusterId, Int_t &pdgIdCl);
+  void GetClusterPdg(std::vector<PBaryon_cluster> baryons_cluster, Int_t clusterId, Int_t &pdgIdCl);
   void GetBaryonContent(std::vector<PBaryon_cluster> baryons_cluster, Int_t &nProt, Int_t &nBary0, Int_t &nLamb, Int_t &nSigm, Int_t &charge);
   Float_t CalculateClusterBindingEnergy(std::vector<PBaryon_cluster> baryons_cluster);
   void CalculateClusterKin(std::vector<PBaryon_cluster> baryons_cluster, Float_t &Px, Float_t &Py, Float_t &Pz, Float_t &energy);
@@ -121,6 +132,8 @@ class PConverter
   std::vector<std::map<int,int>> fbaryonId2pos;
   std::vector<std::map<int,int>> fbaryons2hadrons;
   std::vector<std::map<int,vector<int>>> fclusterId2baryonIds;
+
+  std::vector<ClusterEntry> fclusterList;
 
 };
 #endif

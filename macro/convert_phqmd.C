@@ -41,7 +41,7 @@
  **                       (for every timestep)
  ** fort.881 (optional) : antibaryons that are entering the cluster routine 
  ** phsd.dat            : hadrons (at last timestep)
- ** cluster_table.root  : contains a list with nuclei & hypernuclei with up to 
+ ** cluster_table.dat   : contains a list with nuclei & hypernuclei with up to 
  **                       9 baryons with their baryon content for the 
  **                       identification of physical clusters
  ** 
