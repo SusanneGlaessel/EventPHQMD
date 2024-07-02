@@ -61,9 +61,10 @@ Run macro:
 			Bool_t Convert, Bool_t ConvertAnti, Int_t ConvertMode, Bool_t WriteUnigen,
 			Bool_t WriteEventFreeze, Bool_t SavePHQMDout)
  
- For the conversion of clusters the cluster_table.root is required.
+ For the conversion of clusters the cluster_table.dat is required. It
+ can be easily modified/extended. Each line contains the following
+ information of the respective cluster:
  
- To make changes in the cluster\_table.root, update cluster\_table.dat and run
+	name / pdgcode / number of protons / number of neutral baryons /
+	number of Lambdas / number of Simga0
 
-	cd macro
-	root -l write_clustertree.C

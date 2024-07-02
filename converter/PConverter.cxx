@@ -32,13 +32,16 @@ void PConverter::Init(TString indir, TString dataset, Bool_t CreatePHQMDout, Boo
   fIndir = indir;
 
   if (FreezeCoords == kFALSE && WriteEventFreeze == kTRUE)
-    throw runtime_error("EventFreeze can only be written if Freeze-out coordinates are available.");
+    throw runtime_error("<WriteEventFreeze> is set to true, but EventFreeze can only be written, if Freeze-out coordinates are available.\nIf Freeze-out coordinates are available set <FreezeCoords> to true.Otherwise set <WriteEventFreeze> to false");
   
   if (CreatePHQMDout == kFALSE && Convert == kFALSE)
-    throw runtime_error("Either CreatePHQMDout or Convert must be set to true");
+    throw runtime_error("Either <CreatePHQMDout> or <Convert> must be set to true");
 
   if (CreatePHQMDout == kFALSE && CreateOutWithUnstable == kTRUE)
-   throw runtime_error("If CreateOutWithUnstable is set true, CreatePHQMDout must be set true too.");
+   throw runtime_error("<CreateOutWithUnstable> is set to true, but no root-file from unconverted PHQMD-ouput files is created.\nSet <CreatePHQMDout> to true or set <CreateOutWithUnstable> to false.");
+
+  if (Convert == kTRUE && (WriteUnigen == kFALSE && WriteEventFreeze == kFALSE))
+    throw runtime_error("<Convert> is set to true, but no output-file for converted events is defined.\nSet <WriteUnigen> or <WriteEventFreeze> to true or set <Convert> to false.");
 
   cout << "********************************************************************" <<endl;
   string dataset_str(fDataset.Data());
@@ -114,7 +117,7 @@ void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t
       if (fConvertAnti == kTRUE) frootFileFreeze = "phqmd_freeze.root";
       if (fConvertAnti == kFALSE) frootFileFreeze = "phqmd_freeze_noanti.root";
     }
-    fNameClustertable = "cluster_table.root";
+    fNameClustertable = "cluster_table.dat";
   }
 
   else {
@@ -127,7 +130,7 @@ void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t
       if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze.root",fIndir.Data(),fDataset.Data());
       if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze_noanti.root",fIndir.Data(),fDataset.Data());
     }
-    fNameClustertable = Form("%s/root/cluster_table.root",fIndir.Data()); 
+    fNameClustertable = Form("%s/root/cluster_table.dat",fIndir.Data()); 
   }
 }
 
@@ -212,34 +215,46 @@ void PConverter::ClusterTablePrint()
   /** Prints the cluster table used for the conversion of clusters. **/
   
   char clustername [80];
-  Int_t pdgId, nProt, nNeut, nLamb, nSigm;
+  Int_t pdgId, nProt, nBary0, nLamb, nSigm;
 
-  TFile *clusterTable = new TFile(fNameClustertable,"READ");
-  TTree *tClusterTable = (TTree*) clusterTable -> Get("ClusterTable");
-
-  tClusterTable->SetBranchAddress("clustername",&clustername);
-  tClusterTable->SetBranchAddress("pdgId",&pdgId);
-  tClusterTable->SetBranchAddress("nProt",&nProt);
-  tClusterTable->SetBranchAddress("nNeut",&nNeut);
-  tClusterTable->SetBranchAddress("nLamb",&nLamb);
-  tClusterTable->SetBranchAddress("nSigm",&nSigm);
+  FILE *ClusterTable = fopen(fNameClustertable, "r");
 
   printf("-------------------------\n");
-  for (int i=0; i < tClusterTable->GetEntries(); i++) {
-    tClusterTable->GetEntry(i);
+  while(1) {
+    if (fscanf(ClusterTable, "%s %i %i %i %i %i\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm)==EOF) break;
     printf("%-12s %-10i\n", clustername, pdgId);
   }
   printf("-------------------------\n");
 
-  clusterTable->Close();
+  fclose(ClusterTable);
 }
 
-void PConverter::GetClusterPdg(TTree * tClusterTable, std::vector<PBaryon_cluster> baryons_cluster, Int_t clusterId, Int_t &pdgIdCl)
+void PConverter::GetClusterList()
+{
+  /** Reads the cluster table used for the conversion of clusters and stores entries it into vector. **/
+  
+  char clustername [80];
+  Int_t pdgId, nProt, nBary0, nLamb, nSigm;
+
+  fclusterList.clear();
+  
+  FILE *ClusterTable = fopen(fNameClustertable, "r");
+
+  while(1) {
+    if (fscanf(ClusterTable, "%s %i %i %i %i %i\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm)==EOF) break;
+    fclusterList.push_back(ClusterEntry(pdgId, nProt, nBary0, nLamb, nSigm));
+  }
+
+  fclose(ClusterTable);
+}
+
+void PConverter::GetClusterPdg(std::vector<PBaryon_cluster> baryons_cluster, Int_t clusterId, Int_t &pdgIdCl)
 {
   /** Gets PDG for clusters according to cluster table. **/
   
   Int_t nProtCl = 0; Int_t nBary0Cl = 0; Int_t nLambCl = 0; Int_t nSigmCl = 0;
   Int_t nbary = baryons_cluster.size();
+ 
   for (int ibary = 0; ibary < nbary; ibary++) {
     Int_t pdgId = baryons_cluster.at(ibary).fPdgId;
     if (TMath::Abs(pdgId) == 2212) nProtCl ++;
@@ -248,17 +263,9 @@ void PConverter::GetClusterPdg(TTree * tClusterTable, std::vector<PBaryon_cluste
     if (TMath::Abs(pdgId) == 3212) nSigmCl ++;
   }
   
-  Int_t pdgId, nProt, nNeut, nLamb, nSigm;
-  tClusterTable->SetBranchAddress("pdgId",&pdgId);
-  tClusterTable->SetBranchAddress("nProt",&nProt);
-  tClusterTable->SetBranchAddress("nNeut",&nNeut);
-  tClusterTable->SetBranchAddress("nLamb",&nLamb);
-  tClusterTable->SetBranchAddress("nSigm",&nSigm);
- 
-  for (int i = 0; i < tClusterTable->GetEntries(); i++){
-    tClusterTable->GetEntry(i);   
-    if (nProtCl == nProt && nBary0Cl == nNeut && nLambCl == nLamb && nSigmCl == nSigm) {
-      pdgIdCl = TMath::Sign(pdgId, clusterId);
+  for (auto cluster : fclusterList) {
+    if (nProtCl == cluster.fNProt && nBary0Cl == cluster.fNBary0 && nLambCl == cluster.fNLamb && nSigmCl == cluster.fNSigm) {
+      pdgIdCl = TMath::Sign(cluster.fPdgId, clusterId);
       break;
     }
     else {
@@ -343,14 +350,14 @@ void PConverter::CalculateFreezOutCoord(std::vector<PBaryon_cluster> baryons_clu
 void PConverter::CreatePHeader()
 {
   /** Reads PHQMD run information from inputPHSD and write into root-header. **/
-    
+
   Int_t NUM, ISUBS, NTIME;
   Int_t aProj, zProj, aTarg, zTarg, IBweight;  
   Double_t eLab, bMin, bMax, DBimp, Tstart, Tfinal, dT;
   Int_t Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard;
   Int_t Eyuk, Easy, Epair, Ecoul, IfragWig;
   Double_t Evasy, Etapair;
-    
+ 
   FILE *inputInfo = fopen(finputFileInfo, "r");
   
   fscanf(inputInfo, "%i %*[^\n]%*c", &aTarg);
@@ -393,8 +400,8 @@ void PConverter::CreatePHeader()
   Int_t nEvents = NUM*ISUBS;
   cout << endl;
   cout << "Conversion of " << nEvents << " events with " << NTIME << " timesteps" <<endl;
-  cout << endl;  
- 
+  cout << endl;
+  
   fpheader = new PRun ("phqmd", aProj, zProj, aTarg, zTarg, eLab, bMin, bMax, IBweight, DBimp, NUM, ISUBS, Tstart, Tfinal, dT, NTIME, Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard, Eyuk, Easy, Epair, Ecoul, Evasy, Etapair, IfragWig);
 
   foutputPHQMD->cd();
@@ -417,7 +424,7 @@ void PConverter::CreatePEventsHadrons()
   feventH = new PEventHadrons();
   ftreeH = new TTree (treename, treename);
   ftreeH->Branch ("event", "PEventHadrons", &feventH, 12800000);
-      
+
   for (int isub = 0; isub < fpheader->GetSub(); isub++) {  // loop over all subsequent runs
     for (int inum = 0; inum < fpheader->GetNum(); inum ++) {  // loop over all parallel runs
 
@@ -432,14 +439,14 @@ void PConverter::CreatePEventsHadrons()
       foutputPHQMD->cd();
       feventH->Clear();
       eventId = fFirstEvent + isub*fpheader->GetNum() + inum;
-      
+
       if(fscanf(BulkFile, "%i %i %i %f %*i\n", &nHadrons, &ISub, &INum, &impactpar)==EOF)
 	throw runtime_error("Unexpected end of file phsd.dat at run " + to_string(inum));	
       if(fscanf(BulkFile, "%i %f %f %f %f %f %f %f %f\n", &nParticipants, &phi.at(0), &psi.at(0), &phi.at(1), &psi.at(1), &phi.at(2), &psi.at(2), &phi.at(3), &psi.at(3))==EOF)  
 	throw runtime_error("Unexpected end of file phsd.dat at run " + to_string(inum));
       
       feventH->SetParameters(eventId, nHadrons, nParticipants, ISub, INum, impactpar, phi, psi);
- 
+
       for (int i = 0; i < nHadrons; i++) {
 	if (fFreezeCoords == kTRUE) {
 	  if(fscanf(BulkFile, "%i %i %f %f %f %f %i %i %i %f %f %f %f %f %f %f %f %f\n", &pdgId, &charge, &Px, &Py, &Pz, &energy, &processId, &infoId, &PHSDId, &xposfo, &yposfo, &zposfo, &timefo, &xpfo, &ypfo, &zpfo, &densityB, &densityE)==EOF) {	
@@ -452,11 +459,11 @@ void PConverter::CreatePEventsHadrons()
 	  }
 	}
 	      
-	if (TMath::Abs(pdgId) == 100121) pdgId = 1000010020*charge; // correct pdg-code for kinetic deuterons    
+	if (TMath::Abs(pdgId) == 100121) pdgId = 1000010020*charge; // correct pdg-code for kinetic deuterons
 
 	if (TMath::Abs(pdgId) < 1000) { mesonId = PHSDId; baryonId = -1; }
-	else { baryonId = PHSDId; mesonId = -1;	}	
-
+	else { baryonId = PHSDId; mesonId = -1;	}
+	
 	foutputPHQMD->cd();
 	if (fFreezeCoords == kTRUE)
 	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, densityB, densityE);
@@ -469,7 +476,7 @@ void PConverter::CreatePEventsHadrons()
   }
   foutputPHQMD->cd();
   ftreeH->Write();
-  
+    
   if(fscanf(BulkFile, "%*[^\n]%*c")!=EOF) 	
     throw runtime_error("\n  Error when reading phsd.dat: File not read until the end. Check input format.\n ");	
   fclose(BulkFile);
@@ -483,8 +490,7 @@ void PConverter::CreatePEventsBaryons(Bool_t CreateUnstable)
   
   if (CreateUnstable == kFALSE) treename = "events_baryons";
   if (CreateUnstable == kTRUE) treename = "events_baryons_unstable";
-
-    
+  
   FILE *BaryonFrigaFile = fopen(finputFileBaryonFriga, "r");
   FILE *BaryonFrigaFileAnti;
   if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(finputFileBaryonFrigaAnti, "r");
@@ -496,7 +502,7 @@ void PConverter::CreatePEventsBaryons(Bool_t CreateUnstable)
   for (int isub = 0; isub < fpheader->GetSub(); isub++) {  // loop over all subsequent runs
     for (int it = 0; it < fpheader->GetNTime() + 1; it++) { // loop over all timesteps
       for (int inum = 0; inum < fpheader->GetNum(); inum ++) {  // loop over all parallel runs
-
+	
 	Int_t eventId = fFirstEvent + isub*fpheader->GetNum() + inum;
 		
 	Int_t INum, ISub, nBaryons, nAntiBaryons;
@@ -508,17 +514,17 @@ void PConverter::CreatePEventsBaryons(Bool_t CreateUnstable)
 
 	foutputPHQMD->cd();
 	feventB->Clear();
-
+	
 	if(fscanf(BaryonFrigaFile, "%i %i %f %f %*i %*i %*i %*i %*i %*f %*i\n", &INum, &ISub, &impactpar, &time)==EOF)
 	  throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum));
- 	if(fscanf(BaryonFrigaFile, "%*[^\n]%*c")==EOF)	  
+	if(fscanf(BaryonFrigaFile, "%*[^\n]%*c")==EOF)	  
  	  throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum));
- 	if(fscanf(BaryonFrigaFile, "%i %*i %*i %f\n", &nBaryons, &rcluster)==EOF)
+	if(fscanf(BaryonFrigaFile, "%i %*i %*i %f\n", &nBaryons, &rcluster)==EOF)
 	  throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum));
 
 	foutputPHQMD->cd();
 	feventB->SetParameters(eventId, nBaryons, 0, ISub, INum, impactpar, rcluster, it, time); 
-
+	
 	for (int i = 0; i < nBaryons; i++) {
 	  if(fscanf(BaryonFrigaFile, "%*i %i %f %f %f %f %f %f %f %i %i %i %*i %*i %i %i %f %f\n", &charge, &Px, &Py, &Pz, &Xpos, &Ypos, &Zpos, &Mass, &clusterId, &nBary, &baryonId, &prodId, &prodchanel, &prodtime, &Ebin)==EOF) {
 	    throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum) + "timestep" + to_string(it) + " particle " + to_string(i));
@@ -659,19 +665,17 @@ void PConverter::ConvertPHQMD()
     eventFreeze = new EventFreeze();
     treeFreeze->Branch ("event", "EventFreeze", &eventFreeze, 12800000);
   }
-
-  TFile *clusterTable= new TFile(fNameClustertable,"READ");
-  TTree *tClusterTable = (TTree*) clusterTable -> Get("ClusterTable");
   
   cout << "Clustertable used: " << fNameClustertable << endl;
   ClusterTablePrint();
-  cout << "Conversion mode " << fConvertMode;
+  GetClusterList();
   
+  cout << "Conversion mode " << fConvertMode;
   if (fConvertMode == 0)
     cout << " : Conversion of physical clusters according to cluster table.\nBaryons from all other clusters are counted as single baryons. " << endl;
   if (fConvertMode == 1)
     cout << " : Conversion of physical clusters according to cluster table.\nConversion of clusters A > 7 independent of their physical existence." << endl;
-  
+
   foutputPHQMD->cd();
   for (int ieventB = 0; ieventB < ftreeB->GetEntries(); ieventB++) {
     foutputPHQMD->cd();
@@ -741,7 +745,7 @@ void PConverter::ConvertPHQMD()
 	}
 	if (nbary > 1) {
 	  Int_t pdgId = 99999;
-	  GetClusterPdg(tClusterTable, baryons_cluster, clusterId, pdgId);
+	  GetClusterPdg(baryons_cluster, clusterId, pdgId);
 	  Float_t Ebin = CalculateClusterBindingEnergy(baryons_cluster);
 
 	  if (pdgId != 99999 && Ebin/nbary < fEbin_max) {
@@ -793,7 +797,6 @@ void PConverter::ConvertPHQMD()
     } 
   }
 
-  clusterTable->Close(); 
   foutputPHQMD->Close();
   
   if (fWriteUnigen == kTRUE) {

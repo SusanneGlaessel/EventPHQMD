@@ -41,7 +41,7 @@
  **                       (for every timestep)
  ** fort.881 (optional) : antibaryons that are entering the cluster routine 
  ** phsd.dat            : hadrons (at last timestep)
- ** cluster_table.root  : contains a list with nuclei & hypernuclei with up to 
+ ** cluster_table.dat   : contains a list with nuclei & hypernuclei with up to 
  **                       9 baryons with their baryon content for the 
  **                       identification of physical clusters
  ** 
@@ -87,13 +87,13 @@ void convert_phqmd(TString indir             = "",
 		   TString dataset           = "00001",
 		   Int_t  firstevent         = 0,
 		   Bool_t CreatePHQMDout     = kTRUE,
-		   Bool_t FreezeCoords       = kTRUE,
-		   Bool_t CreateWithUnstable = kFALSE,
+		   Bool_t FreezeCoords       = kFALSE,
+		   Bool_t CreateWithUnstable = kTRUE,
 		   Bool_t Convert            = kTRUE,
 		   Int_t  ConvertMode        = 1,
 		   Bool_t ConvertAnti        = kTRUE,
 		   Bool_t WriteUnigen        = kTRUE,
-		   Bool_t WriteEventFreeze   = kTRUE,
+		   Bool_t WriteEventFreeze   = kFALSE,
 		   Bool_t SavePHQMDout       = kTRUE)
 {
   PConverter* pconverter = new PConverter();
