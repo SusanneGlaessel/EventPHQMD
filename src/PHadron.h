@@ -24,15 +24,17 @@ class PHadron : public TObject {
   Int_t          fBaryonId;     // baryon-Id (= -1 for mesons)
   Int_t          fMesonId;      // meson-Id (= -1 for baryons)
   TLorentzVector fXTFreeze;     // Position & time at freezeout (fm, fm, fm, fm/c)
-  TVector3       fPFreeze;      // 3-momentum at freezeout-time (pz, py, pz) (GeV/c)
-  Float_t        fDensityB;     // baryon density
-  Float_t        fDensityE;     // energy density
+  TLorentzVector fPEFreeze;     // 4-momentum at freezeout-time (pz, py, pz, energy) (GeV/c, GeV)
+  Float_t        fDensityBfo;   // baryon density at freezeout-time
+  Float_t        fDensityEfo;   // energy density at freezeout-time
+  Float_t        fDensityBC;    // baryon density at chemical freezeout
+  Float_t        fDensityEC;    // energy density at chemical freezeout
   
  public:
   
   PHadron();
   virtual ~PHadron();
-  PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId, Float_t xposfo, Float_t yposfo, Float_t zposfo , Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t densityB, Float_t densityE);
+  PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId, Float_t xposfo, Float_t yposfo, Float_t zposfo , Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t energyfo, Float_t densityBfo, Float_t densityEfo, Float_t densityBC, Float_t densityEC);
   PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId);
 
   
@@ -53,14 +55,15 @@ class PHadron : public TObject {
   inline Float_t  ZFreeze()                 const {return fXTFreeze.Z();}
   inline Float_t  TFreeze()                 const {return fXTFreeze.T();}
   inline TLorentzVector GetPositionFreeze() const {return TLorentzVector(fXTFreeze.X(),fXTFreeze.Y(),fXTFreeze.Z(),fXTFreeze.T());}  
-  inline Float_t  PxFreeze()                const {return fPFreeze.X();}
-  inline Float_t  PyFreeze()                const {return fPFreeze.Y();}
-  inline Float_t  PzFreeze()                const {return fPFreeze.Z();}
-  inline TVector3 GetMomentumFreeze()       const {return fPFreeze;}
-  TLorentzVector GetMomentumFreeze4();
-  Float_t EFreeze();    
-  inline Float_t  GetDensityB()             const {return fDensityB;}
-  inline Float_t  GetDensityE()             const {return fDensityE;}
+  inline Float_t  PxFreeze()                const {return fPEFreeze.X();}
+  inline Float_t  PyFreeze()                const {return fPEFreeze.Y();}
+  inline Float_t  PzFreeze()                const {return fPEFreeze.Z();}
+  inline Float_t  EnergyFreeze()            const {return fPEFreeze.T();}
+  inline TLorentzVector GetMomentumFreeze() const {return TLorentzVector(fPEFreeze.X(),fPEFreeze.Y(),fPEFreeze.Z(),fPEFreeze.T());}
+  inline Float_t  GetDensityBFreeze()       const {return fDensityBfo;}
+  inline Float_t  GetDensityEFreeze()       const {return fDensityEfo;}
+  inline Float_t  GetDensityBChem()         const {return fDensityBC;}
+  inline Float_t  GetDensityEChem()         const {return fDensityEC;}
     
   inline void SetPdg(Int_t pdgId)           {fPdgId = pdgId;}
   inline void SetPx(Float_t Px)             {fP.SetX(Px);}
@@ -82,13 +85,16 @@ class PHadron : public TObject {
   inline void SetPositionFreeze(Float_t xposfo, Float_t yposfo, Float_t zposfo) {fXTFreeze.SetX(xposfo); fXTFreeze.SetY(yposfo); fXTFreeze.SetZ(zposfo);}
   inline void SetPositionFreeze(Float_t xposfo, Float_t yposfo, Float_t zposfo, Float_t timefo) {fXTFreeze.SetXYZT(xposfo, yposfo, zposfo, timefo);}
   inline void SetPositionFreeze(TLorentzVector XTFreeze) {fXTFreeze = XTFreeze;}  
-  inline void SetPxFreeze(Float_t xpfo)     {fPFreeze.SetX(xpfo);}
-  inline void SetPyFreeze(Float_t ypfo)     {fPFreeze.SetY(ypfo);}
-  inline void SetPzFreeze(Float_t zpfo)     {fPFreeze.SetZ(zpfo);}
-  void SetMomentumFreeze(Float_t xpfo, Float_t ypfo, Float_t zpfo) {fPFreeze.SetXYZ(xpfo, ypfo, zpfo);}
-  void SetMomentumgFreeze(TVector3 PFreeze) {fPFreeze = PFreeze;} 
-  inline void SetDensityB(Float_t densityB) {fDensityB = densityB;}
-  inline void SetDensityE(Float_t densityE) {fDensityE = densityE;}  
+  inline void SetPxFreeze(Float_t xpfo)     {fPEFreeze.SetX(xpfo);}
+  inline void SetPyFreeze(Float_t ypfo)     {fPEFreeze.SetY(ypfo);}
+  inline void SetPzFreeze(Float_t zpfo)     {fPEFreeze.SetZ(zpfo);}
+  inline void SetMomentumFreeze(Float_t xpfo, Float_t ypfo, Float_t zpfo) {fPEFreeze.SetX(xpfo); fPEFreeze.SetY(ypfo); fPEFreeze.SetZ(zpfo);}
+  inline void SetMomentumFreeze(Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t energyfo) {fPEFreeze.SetXYZT(xpfo, ypfo, zpfo, energyfo);}
+  inline void SetMomentumgFreeze(TLorentzVector PEFreeze) {fPEFreeze = PEFreeze;} 
+  inline void SetDensityBFreeze(Float_t densityBfo) {fDensityBfo = densityBfo;}
+  inline void SetDensityEFreeze(Float_t densityEfo) {fDensityEfo = densityEfo;}
+  inline void SetDensityBChem(Float_t densityBC)    {fDensityBC = densityBC;}
+  inline void SetDensityEChem(Float_t densityEC)    {fDensityEC = densityEC;}  
  
   void Print() const;
 

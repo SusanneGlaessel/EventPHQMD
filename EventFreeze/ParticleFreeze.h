@@ -19,7 +19,8 @@ class ParticleFreeze : public TObject {
   Float_t  fEnergy;       // Energy (GeV/c)
   Float_t  fTimeFreeze;   // Freezeout-time (fm/c)
   TVector3 fXFreeze;      // Position at freezeout-time (fm)
-  TVector3 fPFreeze;      // 3-momentum at freezeout-time (pz, py, pz) (GeV/c)
+  TVector3 fPFreeze;      // Momentum at freezeout-time (pz, py, pz) (GeV/c)
+  Float_t  fEnergyFreeze; // Energy at freezeout-time (GeV/c)
   Int_t    fOrigin;       // Information about origin of deuterons: = 0: kinetic deuteron (from phsd.dat), = 1: potential/MST deuteron (from fort.891)
 
  public:
@@ -41,13 +42,14 @@ class ParticleFreeze : public TObject {
   inline TLorentzVector GetPositionFreeze() const {return TLorentzVector(fXFreeze.X(),fXFreeze.Y(),fXFreeze.Z(),fTimeFreeze);}
   inline Float_t PxFreeze()       const {return fPFreeze.X();}
   inline Float_t PyFreeze()       const {return fPFreeze.Y();}
-  inline Float_t PzFreeze()       const {return fPFreeze.Z();}   
-  TLorentzVector GetMomentumFreeze();
+  inline Float_t PzFreeze()       const {return fPFreeze.Z();}
+  inline Float_t EnergyFreeze()   const {return fEnergyFreeze;}   
+  inline TLorentzVector GetMomentumFreeze() const {return TLorentzVector(fPFreeze.X(),fPFreeze.Y(),fPFreeze.Z(),fEnergyFreeze);}
   inline Int_t   GetOrigin()      const {return fOrigin;}
 
-  ParticleFreeze(Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XFreeze, TVector3 PFreeze, Int_t Origin);
-  ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t TimeFreeze, TVector3 XFreeze, TVector3 PFreeze, Int_t Origin);
-  ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XFreeze, TVector3 PFreeze, Int_t Origin);
+  ParticleFreeze(Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t Origin);
+  ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t TimeFreeze, TVector3 XFreeze, TVector3 PFreeze, Float_t EnergyFreeze, Int_t Origin);
+  ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t Origin);
   void Print(Option_t* = "") const;
 
   ClassDef(ParticleFreeze, 1);

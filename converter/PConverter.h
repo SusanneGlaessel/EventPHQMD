@@ -43,10 +43,10 @@ class PConverter
     Float_t fEnergy;
     Float_t fEbin;
     TLorentzVector fXTFreeze;
-    TVector3 fPFreeze;
+    TLorentzVector fPEFreeze;
     Int_t fBaryonId;
     Int_t fClusterId;
-  PBaryon_cluster(Int_t baryonId, Int_t PdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TVector3 PFreeze, Float_t Ebin) : fBaryonId(baryonId), fPdgId(PdgId), fP(P), fEnergy(energy), fXTFreeze(XTFreeze), fPFreeze(PFreeze), fEbin(Ebin) {};
+  PBaryon_cluster(Int_t baryonId, Int_t PdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Float_t Ebin) : fBaryonId(baryonId), fPdgId(PdgId), fP(P), fEnergy(energy), fXTFreeze(XTFreeze), fPEFreeze(PEFreeze), fEbin(Ebin) {};
   };
 
   struct ClusterEntry {
@@ -89,7 +89,7 @@ class PConverter
   Float_t CalculateClusterBindingEnergy(std::vector<PBaryon_cluster> baryons_cluster);
   void CalculateClusterKin(std::vector<PBaryon_cluster> baryons_cluster, Float_t &Px, Float_t &Py, Float_t &Pz, Float_t &energy);
   void CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t &TsFreeze, Float_t &TimeFreezeCluster, Float_t &deltaT);
-  void CalculateFreezOutCoord(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t TsFreeze,  Float_t TimeFreezeCluster, Float_t deltaT, TVector3 &posfo_cluster, TVector3 &pfo_cluster);
+  void CalculateFreezeOutCoord(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t TsFreeze,  Float_t TimeFreezeCluster, Float_t deltaT, TVector3 &posfo_cluster, TVector3 &pfo_cluster, Float_t &energyFreeze);
 
   TString fIndir = "";
   TString fDataset = "";

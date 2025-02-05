@@ -44,9 +44,9 @@ class EventFreeze : public TObject  {
   inline void SetTime   (Float_t time)               {fTime = time;}
   inline void SetPhi    (Float_t phi)                {fPhi = phi;}
 
-  void AddParticle (Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XFreeze, TVector3 PFreeze, Int_t Origin); 
-  void AddParticle (Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t TimeFreezeCluster, TVector3 posfo_cluster, TVector3 pfo_cluster, Int_t Origin); 
-  void AddParticle (Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XFreeze, TVector3 PFreeze, Int_t Origin);
+  void AddParticle (Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t origin); 
+  void AddParticle (Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t timefo, TVector3 posfo, TVector3 pfo, Float_t energyfo, Int_t origin); 
+  void AddParticle (Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t origin);
   void Print(Option_t* option = "") const;
   void Clear();
   

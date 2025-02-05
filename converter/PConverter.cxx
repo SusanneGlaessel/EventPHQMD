@@ -78,6 +78,20 @@ void PConverter::InitCreatePHQMDout(Bool_t ConvertAnti, Int_t firstevent)
     finputFileBaryonFrigaAnti = Form("%s/%s/fort.881",fIndir.Data(),fDataset.Data());
   }
 
+  if (FILE *file = fopen(finputFileInfo, "r")) fclose(file);
+  else throw runtime_error("\n  " + finputFileInfo + " does not exist! \n ");
+
+  if (FILE *file = fopen(finputFileBulk, "r")) fclose(file);
+  else throw runtime_error("\n  " + finputFileBulk + " does not exist! \n ");
+
+  if (FILE *file = fopen(finputFileBaryonFriga, "r")) fclose(file);
+  else throw runtime_error("\n  " + finputFileBaryonFriga + " does not exist! \n ");
+
+  if (fConvertAnti == kTRUE) {
+    if (FILE *file = fopen(finputFileBaryonFrigaAnti, "r")) fclose(file);
+    else throw runtime_error("\n  " + finputFileBaryonFrigaAnti + " does not exist! Set 'ConvertAnti = kFALSE'. \n ");
+  }
+  
   if (fDataset.Length() == 0)
      frootFileP =  "phqmd_out.root";
   else
@@ -96,6 +110,12 @@ void PConverter::InitCreatePHQMDoutUnstable(Bool_t ConvertAnti, Int_t firstevent
     finputFileBaryonFrigaUnstable     = Form("%s/%s/fort.791",fIndir.Data(),fDataset.Data());
     finputFileBaryonFrigaAntiUnstable = Form("%s/%s/fort.781",fIndir.Data(),fDataset.Data());
   }
+
+  if (FILE *file = fopen(finputFileBaryonFrigaUnstable, "r")) fclose(file);
+  else throw runtime_error("\n  " + finputFileBaryonFrigaUnstable + " does not exist! Set 'CreateWithUnstable = kFALSE'. \n ");
+
+  if (FILE *file = fopen(finputFileBaryonFrigaAntiUnstable, "r")) fclose(file);
+  else throw runtime_error("\n  " + finputFileBaryonFrigaAntiUnstable + " does not exist! Set 'CreateWithUnstable = kFALSE'. \n ");
 }
 
 void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t ConvertAnti)
@@ -322,14 +342,15 @@ void PConverter::CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> bary
   deltaT = TimeFreezeCluster - fts_time.at(TsFreeze);
 }
 
-void PConverter::CalculateFreezOutCoord(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t TsFreeze, Float_t TimeFreezeCluster, Float_t deltaT, TVector3 &posfo_cluster, TVector3 &pfo_cluster)
+void PConverter::CalculateFreezeOutCoord(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t TsFreeze, Float_t TimeFreezeCluster, Float_t deltaT, TVector3 &posfo_cluster, TVector3 &pfo_cluster, Float_t &energyFreeze)
 {
   /** Calculates freezeout coordinates (position and momentum) of a cluster. **/
   
   auto it_ieventfr = feventId2EntryB.find(feventB->GetEventId());
   Int_t ieventFreeze = it_ieventfr -> second[TsFreeze];
   ftreeB->GetEntry(ieventFreeze);
-	    
+
+  Float_t mass_cluster = 0;
   for (int ibary = 0; ibary < nbary; ibary++) {	      
     auto it_bary = fbaryonId2pos[ieventFreeze].find(baryons_cluster.at(ibary).fBaryonId);
     PBaryon baryon_fo = feventB->GetBaryon(it_bary->second);
@@ -340,9 +361,14 @@ void PConverter::CalculateFreezOutCoord(std::vector<PBaryon_cluster> baryons_clu
 	posfo_cluster(i) +=  baryons_cluster.at(ibary).fXTFreeze(i);
       pfo_cluster(i) +=  baryon_fo.GetMomentum()(i);
     }
+    mass_cluster += baryon_fo.Mass();
   }
+
   for (int i = 0; i < 3; i++)
     posfo_cluster(i) /= nbary;
+  
+  energyFreeze = TMath::Sqrt(mass_cluster*mass_cluster + pfo_cluster(0)* pfo_cluster(0) + pfo_cluster(1)* pfo_cluster(1) + pfo_cluster(2)* pfo_cluster(2));
+ 
 }
 
 // ------------------------------------------------------------------------
@@ -436,7 +462,7 @@ void PConverter::CreatePEventsHadrons()
       Float_t impactpar;
       std::array<Float_t,4> phi, psi;
       Int_t pdgId, charge, PHSDId, baryonId, mesonId, processId, infoId;
-      Float_t Px, Py, Pz, energy, xposfo, yposfo, zposfo, timefo, xpfo, ypfo, zpfo, densityB, densityE, ratqgp;
+      Float_t Px, Py, Pz, energy, xposfo, yposfo, zposfo, timefo, xpfo, ypfo, zpfo, energyfo, densityBfo, densityEfo, densityBC, densityEC, ratqgp;
       
       //Get Hadrons from phsd.dat
       
@@ -452,8 +478,8 @@ void PConverter::CreatePEventsHadrons()
       feventH->SetParameters(eventId, nHadrons, nParticipants, ISub, INum, impactpar, phi, psi, ratqgp);
 
       for (int i = 0; i < nHadrons; i++) {
-	if (fFreezeCoords == kTRUE) {
-	  if(fscanf(BulkFile, "%i %i %f %f %f %f %i %i %i %f %f %f %f %f %f %f %f %f\n", &pdgId, &charge, &Px, &Py, &Pz, &energy, &processId, &infoId, &PHSDId, &xposfo, &yposfo, &zposfo, &timefo, &xpfo, &ypfo, &zpfo, &densityB, &densityE)==EOF) {	
+	if (fFreezeCoords == kTRUE) {	
+	  if(fscanf(BulkFile, "%i %i %f %f %f %f %i %i %i %*f %f %f %f %f %f %f %f %f %f %f %f %f\n", &pdgId, &charge, &Px, &Py, &Pz, &energy, &processId, &infoId, &PHSDId, &densityBfo, &densityEfo, &xposfo, &yposfo, &zposfo, &timefo, &xpfo, &ypfo, &zpfo, &energyfo, &densityBC, &densityEC)==EOF) {	
 	    throw runtime_error("Unexpected end of file phsd.dat at run " + to_string(inum) + " particle " + to_string(i));
 	  }
 	}
@@ -470,7 +496,7 @@ void PConverter::CreatePEventsHadrons()
 	
 	foutputPHQMD->cd();
 	if (fFreezeCoords == kTRUE)
-	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, densityB, densityE);
+	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId, xposfo, yposfo, zposfo ,timefo, xpfo, ypfo, zpfo, energyfo, densityBfo, densityEfo, densityBC, densityEC);
 	else
 	  feventH->AddHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId);
       }
@@ -495,9 +521,17 @@ void PConverter::CreatePEventsBaryons(Bool_t CreateUnstable)
   if (CreateUnstable == kFALSE) treename = "events_baryons";
   if (CreateUnstable == kTRUE) treename = "events_baryons_unstable";
   
-  FILE *BaryonFrigaFile = fopen(finputFileBaryonFriga, "r");
-  FILE *BaryonFrigaFileAnti;
-  if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(finputFileBaryonFrigaAnti, "r");
+  FILE *BaryonFrigaFile; FILE *BaryonFrigaFileAnti;
+  if (CreateUnstable == kFALSE) {
+    BaryonFrigaFile = fopen(finputFileBaryonFriga, "r");
+    if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(finputFileBaryonFrigaAnti, "r");
+  }
+  if (CreateUnstable == kTRUE) {
+    BaryonFrigaFile = fopen(finputFileBaryonFrigaUnstable, "r");
+    if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(finputFileBaryonFrigaAntiUnstable, "r");
+  }
+  
+ 
   
   feventB = new PEventBaryons();
   ftreeB = new TTree (treename, treename);
@@ -743,7 +777,7 @@ void PConverter::ConvertPHQMD()
 	  }	  
 	  if (fWriteEventFreeze == kTRUE) {
 	    outputFreeze->cd();
-	    eventFreeze->AddParticle(baryons_cluster.at(ibary).fPdgId, baryons_cluster.at(ibary).fP, baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze, baryons_cluster.at(ibary).fPFreeze, 1);
+	    eventFreeze->AddParticle(baryons_cluster.at(ibary).fPdgId, baryons_cluster.at(ibary).fP, baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze, baryons_cluster.at(ibary).fPEFreeze, 1);
 	  }	  
 	  index++;
 	}
@@ -758,11 +792,11 @@ void PConverter::ConvertPHQMD()
 		
 	    //Calculate Cluster Freeze-out coordinates
 	    Float_t TimeFreezeCluster = 0.0;
-	    Float_t deltaT; Int_t TsFreeze;
+	    Float_t deltaT; Int_t TsFreeze;  Float_t energyFreeze;
 	    TVector3 posfo_cluster = {0.0, 0.0, 0.0}; TVector3 pfo_cluster = {0.0, 0.0, 0.0};
 	    if (fFreezeCoords == kTRUE) {
 	      CalculateClusterFreezeOutTime(baryons_cluster, nbary, TsFreeze, TimeFreezeCluster, deltaT);
-	      CalculateFreezOutCoord(baryons_cluster, nbary, TsFreeze, TimeFreezeCluster, deltaT, posfo_cluster, pfo_cluster);
+	      CalculateFreezeOutCoord(baryons_cluster, nbary, TsFreeze, TimeFreezeCluster, deltaT, posfo_cluster, pfo_cluster, energyFreeze);
 	      ftreeB->GetEntry(ieventB);
 	    }	 
 	    if (fWriteUnigen == kTRUE) {
@@ -771,7 +805,7 @@ void PConverter::ConvertPHQMD()
 	    }	    
 	    if (fWriteEventFreeze == kTRUE) {
 	      outputFreeze->cd();
-	      eventFreeze->AddParticle(pdgId, Px, Py, Pz, energy, TimeFreezeCluster, posfo_cluster, pfo_cluster, 1);
+	      eventFreeze->AddParticle(pdgId, Px, Py, Pz, energy, TimeFreezeCluster, posfo_cluster, pfo_cluster, energyFreeze, 1);
 	    }	    
 	    index++;
 	  }
@@ -783,7 +817,7 @@ void PConverter::ConvertPHQMD()
 		}	     
 	      if (fWriteEventFreeze == kTRUE) {
 		outputFreeze->cd();
-		eventFreeze->AddParticle(baryons_cluster.at(ibary).fPdgId, baryons_cluster.at(ibary).fP, baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze, baryons_cluster.at(ibary).fPFreeze, 1);
+		eventFreeze->AddParticle(baryons_cluster.at(ibary).fPdgId, baryons_cluster.at(ibary).fP, baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze, baryons_cluster.at(ibary).fPEFreeze, 1);
 	      }	       
 	      index++;
 	    }

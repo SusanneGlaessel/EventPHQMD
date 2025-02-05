@@ -20,9 +20,9 @@ PEventHadrons::PEventHadrons()
   fHadrons.clear();
 };
 
-void PEventHadrons::AddHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId, Float_t xposfo, Float_t yposfo, Float_t zposfo, Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t densityB, Float_t densityE)
+void PEventHadrons::AddHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId, Float_t xposfo, Float_t yposfo, Float_t zposfo, Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t energyfo, Float_t densityBfo, Float_t densityEfo, Float_t densityBC, Float_t densityEC)
 {
-  fHadrons.push_back(PHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, densityB, densityE));
+  fHadrons.push_back(PHadron(pdgId, Px, Py, Pz, energy, processId, infoId, baryonId, mesonId, xposfo, yposfo, zposfo ,timefo, xpfo,ypfo,zpfo, energyfo, densityBfo, densityEfo, densityBC, densityEC));
 };
 
 void PEventHadrons::AddHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId)
