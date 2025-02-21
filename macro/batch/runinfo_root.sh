@@ -62,8 +62,8 @@ export ICLUSTER=1               ## enable or disable CLUSTER output
 export version_phqmd=phqmd52_winn
 export LOCATION=/lustre
 export DIR=$LOCATION/cbm/users/$USER
-export PHQMDDIR=$DIR/$version_phqmd
-export CONVERTDIR=/lustre/cbm/users/glaessel/EventPHQMD                    ## path to local installation of EventPHQMD
+export PHQMDDIR=$DIR/$version_phqmd                                        ## path to PHQMD installation
+export CONVERTDIR=/lustre/cbm/users/$USER/EventPHQMD                       ## path to local installation of EventPHQMD
 export ROOT_SOURCE=/cvmfs/fairsoft.gsi.de/debian11/fairsoft/nov22p1/bin    ## path to root installation (UniGen classes are not required)    
 export OUTDIR=$DIR/mc/$version_phqmd/$SYSTEM"_"$ENERGY"GeV_"$IMPACTPARAMETER_MAX"fm_Num"$NUM"xSub"$ISUBS"_EoS"$EOS
 

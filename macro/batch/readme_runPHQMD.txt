@@ -20,8 +20,7 @@ Only runinfo_root.sh needs to be modified:
 
 - selection of steps
 - options for conversion to root & UniGen**
-- select input information for PHQMD, e.g system, energy, number of parallel events,
-impactparamter etc. 
+- input information for PHQMD, e.g system, energy, number of parallel events, impactparamter etc. 
 - location information
 
 * Stabilisation: 791to891.exe converts fort.791 (fort.781) into fort.891 (fort.881) which
