@@ -381,7 +381,7 @@ void PConverter::CreatePHeader()
   Int_t aProj, zProj, aTarg, zTarg, IBweight;  
   Double_t eLab, bMin, bMax, DBimp, Tstart, Tfinal, dT;
   Int_t Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard, Idqpm;
-  Int_t Eyuk, Easy, Epair, Ecoul, IfragWig, Irelqmd;
+  Int_t Eyuk, Easy, Epair, Ecoul, IfragWig;
   Double_t Evasy, Etapair;
  
   FILE *inputInfo = fopen(finputFileInfo, "r");
@@ -421,10 +421,7 @@ void PConverter::CreatePHeader()
   fscanf(inputInfo, "%lf %*[^\n]%*c", &Etapair);
   fscanf(inputInfo, "%i %*[^\n]%*c", &Ieos);
   fscanf(inputInfo, "%i %*[^\n]%*c", &Ires);  
-  fscanf(inputInfo, "%i %*[^\n]%*c", &IfragWig);
-  fscanf(inputInfo, "%*[^\n]%*c");
-  fscanf(inputInfo, "%*[^\n]%*c");
-  if (fscanf(inputInfo, "%i %*[^\n]%*c", &Irelqmd) == EOF)
+  if (fscanf(inputInfo, "%i %*[^\n]%*c", &IfragWig) == EOF)
     throw runtime_error("Unexpected end of file " + finputFileInfo + ".\n ");
 
   Int_t nEvents = NUM*ISUBS;
@@ -432,7 +429,7 @@ void PConverter::CreatePHeader()
   cout << "Conversion of " << nEvents << " events with " << NTIME << " timesteps" <<endl;
   cout << endl;
   
-  fpheader = new PRun ("phqmd", aProj, zProj, aTarg, zTarg, eLab, bMin, bMax, IBweight, DBimp, NUM, ISUBS, Tstart, Tfinal, dT, NTIME, Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard, Idqpm, Eyuk, Easy, Epair, Ecoul, Evasy, Etapair, IfragWig, Irelqmd);
+  fpheader = new PRun ("phqmd", aProj, zProj, aTarg, zTarg, eLab, bMin, bMax, IBweight, DBimp, NUM, ISUBS, Tstart, Tfinal, dT, NTIME, Ieos, Iglue, Iphqmd, Inuclei, Ires, Idilept, Icq, Ihard, Idqpm, Eyuk, Easy, Epair, Ecoul, Evasy, Etapair, IfragWig);
 
   foutputPHQMD->cd();
   fpheader->Write();

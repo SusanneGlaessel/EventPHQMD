@@ -6,7 +6,7 @@ EventPHQMD converts PHQMD output files into:
 - a root-file containing full events with hadrons & clusters (UniGen format or root-format
 including freeze-out momentum)
 
-branch **PHQMD52 _Winn** is compatible with PHQMD version PHQMD52-Winn_2023
+branch **PHQMD52** is compatible with PHQMD version PHQMD52_2023
 
 ## Requirements
 
@@ -21,7 +21,7 @@ UniGen classes are not required, they are part of the installation.
 
 Clone
 
-	git clone --branch PHQMD52_Winn git@github.com:SusanneGlaessel/EventPHQMD
+	git clone --branch PHQMD52 git@github.com:SusanneGlaessel/EventPHQMD
 
 Set rootsource
 
