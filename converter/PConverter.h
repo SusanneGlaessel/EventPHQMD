@@ -55,8 +55,9 @@ class PConverter
     Int_t fNBary0;
     Int_t fNLamb;
     Int_t fNSigm;
-  ClusterEntry() : fPdgId(-1), fNProt(-1), fNBary0(-1), fNLamb(-1), fNSigm(-1) {};
-  ClusterEntry(Int_t pdgId, Int_t nProt, Int_t nBary0, Int_t nLamb, Int_t nSigm) : fPdgId(pdgId), fNProt(nProt), fNBary0(nBary0), fNLamb(nLamb), fNSigm(nSigm) {};
+    Double_t fBR;
+  ClusterEntry() : fPdgId(-1), fNProt(-1), fNBary0(-1), fNLamb(-1), fNSigm(-1), fBR(-1) {};
+  ClusterEntry(Int_t pdgId, Int_t nProt, Int_t nBary0, Int_t nLamb, Int_t nSigm, Double_t br) : fPdgId(pdgId), fNProt(nProt), fNBary0(nBary0), fNLamb(nLamb), fNSigm(nSigm), fBR(br) {};
   };
 
   void Init(TString indir = "", TString dataset = "", Bool_t CreatePHQMDout = kTRUE, Bool_t FreezeCoords = kFALSE, Bool_t CreateOutWithUnstable = kFALSE, Bool_t Convert = kFALSE, Bool_t WriteUnigen = kTRUE, Bool_t ConvertMode = 0, Bool_t ConvertAnti = kTRUE, Bool_t WriteEventFreeze = kFALSE,  Int_t firstevent = 0);

@@ -190,13 +190,11 @@ if [ "$ConvertToRoot" == 1 ]; then
 	    exit 1
 	fi
 
-	cd $CONVERTDIR/macro
-	root -l -b -q  "$script_convert(\"$OUTDIR\",\"$XXXXX\",$firstevent,$CreateRoot,$FreezeCoords,$CreateUnstab,$Convert,$CountAllClusters,$ConvertAntiClusters,$WriteUnigen,$WriteFreeze,$SaveRoot)"
+    fi
 
-    else 
-	cd $CONVERTDIR/macro
-	root -l -b -q  "$script_convert(\"$OUTDIR\",\"$XXXXX\",$firstevent,$CreateRoot,$FreezeCoords,$CreateUnstab,$Convert,$CountAllClusters,$ConvertAntiClusters,$WriteUnigen,$WriteFreeze,$SaveRoot)"
-    fi	
+    cd $CONVERTDIR/macro
+    root -l -b -q  "$script_convert(\"$OUTDIR\",\"$XXXXX\",$firstevent,$CreateRoot,$FreezeCoords,$CreateUnstab,$Convert,$CountAllClusters,$ConvertAntiClusters,$WriteUnigen,$WriteFreeze,$SaveRoot)"
+
 
 fi
 

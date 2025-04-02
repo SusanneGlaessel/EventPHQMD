@@ -66,4 +66,4 @@ Run macro:
  information of the respective cluster:
  
 	name / pdgcode / number of protons / number of neutral baryons /
-	number of Lambdas / number of Simga0
+	number of Lambdas / number of Simga0 / branching ratio

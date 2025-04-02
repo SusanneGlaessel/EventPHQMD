@@ -28,7 +28,7 @@
  ** * In PHQMD clusters / anticlusters are recognised independently of their physical 
  ** existence. The cluster-baryons are listed separately in the outputfile. This 
  ** routine builds clusters from the single baryons based on their cluster-ID and 
- ** identifies physical clusters according to the cluster_table.root. Baryons from 
+ ** identifies physical clusters according to the cluster_table.dat. Baryons from 
  ** unphysical clusters (eg. p-p) are counted as single baryons (see options below).
  **
  ** ** PHQMD writes baryons and anti-baryons into two separate files. The conversion 
@@ -87,13 +87,13 @@ void convert_phqmd(TString indir             = "",
 		   TString dataset           = "00001",
 		   Int_t  firstevent         = 0,
 		   Bool_t CreatePHQMDout     = kTRUE,
-		   Bool_t FreezeCoords       = kFALSE,
+		   Bool_t FreezeCoords       = kTRUE,
 		   Bool_t CreateWithUnstable = kTRUE,
 		   Bool_t Convert            = kTRUE,
 		   Int_t  ConvertMode        = 1,
 		   Bool_t ConvertAnti        = kTRUE,
 		   Bool_t WriteUnigen        = kTRUE,
-		   Bool_t WriteEventFreeze   = kFALSE,
+		   Bool_t WriteEventFreeze   = kTRUE,
 		   Bool_t SavePHQMDout       = kTRUE)
 {
   PConverter* pconverter = new PConverter();

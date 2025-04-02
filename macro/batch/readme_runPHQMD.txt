@@ -23,6 +23,10 @@ Only runinfo_root.sh needs to be modified:
 - input information for PHQMD, e.g system, energy, number of parallel events, impactparamter etc. 
 - location information
 
+The run can get started with:
+
+. runPHQMD_root.sh
+
 * Stabilisation: 791to891.exe converts fort.791 (fort.781) into fort.891 (fort.881) which
 considers a clusters as stable when the cluster-baryons are freezed out (and if it has a 
 negative binding energy).
@@ -38,11 +42,11 @@ clusters according to the cluster_table.root. Baryons from unphysical clusters (
 are counted as single baryons. With option "CountAllClusters" all clusters with size A > 7 
 are counted as clusters independent of their physical existence.
 
-The cluster_table.dat contains the information about physical clusters and their
-baryon content. It is required to perform the conversion and can be easily 
+The cluster_table.dat contains the information about physical clusters, their baryon
+content and branching ratio. It is required to perform the conversion and can be easily 
 modified/extended. Each line contains the following information of the respective cluster:
 >> name / pdgcode / number of protons / number of neutral baryons / number of Lambdas 
->> / number of Simga0
+>> / number of Simga0 / branching ratio
 
 PHQMD writes baryons and anti-baryons into two separate files. The conversion
 of anti-baryons is optional and can be switched off.

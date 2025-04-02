@@ -1,5 +1,6 @@
 #include "PConverter.h"
 #include "TMath.h"
+#include "TRandom.h"
 #include "TNamed.h"
 #include "TSystem.h"
 #include "PRun.h"
@@ -142,13 +143,20 @@ void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t
 
   else {
     frootFileP =  Form("%s/root/%s.phqmd_out.root",fIndir.Data(),fDataset.Data());
+
+    TString clusterdir;
+    if (fConvertMode == 0)
+      clusterdir = "smallclusters";
+    else
+      clusterdir = "allclusters";
+    
     if (fWriteUnigen == kTRUE) {
-      if (fConvertAnti == kTRUE)  frootFileDet    = Form("%s/root/unigen/%s.phqmd.root",fIndir.Data(),fDataset.Data());
-      if (fConvertAnti == kFALSE) frootFileDet    = Form("%s/root/unigen/%s.phqmd_noanti.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kTRUE)  frootFileDet    = Form("%s/root/unigen/%s/%s.phqmd.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileDet    = Form("%s/root/unigen/%s/%s.phqmd_noanti.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
     } 
     if (fWriteEventFreeze == kTRUE) {
-      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze.root",fIndir.Data(),fDataset.Data());
-      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze_noanti.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/root/freeze/%s/%s.phqmd_freeze.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/root/freeze/%s/%s.phqmd_freeze_noanti.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
     }
     fNameClustertable = Form("%s/root/cluster_table.dat",fIndir.Data()); 
   }
@@ -236,15 +244,18 @@ void PConverter::ClusterTablePrint()
   
   char clustername [80];
   Int_t pdgId, nProt, nBary0, nLamb, nSigm;
+  Double_t br;
 
   FILE *ClusterTable = fopen(fNameClustertable, "r");
 
-  printf("-------------------------\n");
+  printf("------------------------------------\n");
+  printf("name             pdg            br\n");
+  printf("------------------------------------\n");
   while(1) {
-    if (fscanf(ClusterTable, "%s %i %i %i %i %i\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm)==EOF) break;
-    printf("%-12s %-10i\n", clustername, pdgId);
+    if (fscanf(ClusterTable, "%s %i %i %i %i %i %lf\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm, &br)==EOF) break;
+    printf("%-16s %-10i %8.2f\n", clustername, pdgId, br);
   }
-  printf("-------------------------\n");
+  printf("------------------------------------\n");
 
   fclose(ClusterTable);
 }
@@ -255,16 +266,31 @@ void PConverter::GetClusterList()
   
   char clustername [80];
   Int_t pdgId, nProt, nBary0, nLamb, nSigm;
+  Double_t br;
 
+  std::map<Int_t, std::vector<Double_t>> content2br;
+  content2br.clear();
+  
   fclusterList.clear();
   
   FILE *ClusterTable = fopen(fNameClustertable, "r");
 
   while(1) {
-    if (fscanf(ClusterTable, "%s %i %i %i %i %i\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm)==EOF) break;
-    fclusterList.push_back(ClusterEntry(pdgId, nProt, nBary0, nLamb, nSigm));
+    if (fscanf(ClusterTable, "%s %i %i %i %i %i %lf\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm, &br)==EOF) break;
+    fclusterList.push_back(ClusterEntry(pdgId, nProt, nBary0, nLamb, nSigm, br));
   }
 
+  for (auto content : content2br) {
+    Double_t br_total = 0;
+    for (int i = 0; i < content.second.size(); i++) {
+      br_total += content.second[i];
+    }
+    if (br_total != 1) {
+      Int_t pdgA   = 10; Int_t pdgZ = 10000; Int_t pdgL = 10000000; 
+      throw runtime_error("\n Clustertable: Sum of branching ratios is " + to_string(br_total) + " != 1 for: A = " + to_string((content.first % pdgZ) / pdgA) + ", Z = " + to_string((content.first % pdgL) / pdgZ) + ", L = " + to_string((content.first % (10 * pdgL)) / pdgL) + ", S = " + to_string((content.first % (100 * pdgL)) / (pdgL*10)) + "!");
+    }
+  }
+    
   fclose(ClusterTable);
 }
 
@@ -282,19 +308,43 @@ void PConverter::GetClusterPdg(std::vector<PBaryon_cluster> baryons_cluster, Int
     if (TMath::Abs(pdgId) == 3122) nLambCl ++;
     if (TMath::Abs(pdgId) == 3212) nSigmCl ++;
   }
+
+  std::map<Int_t, Double_t> pdg2br;
+  pdg2br.clear();
+  Double_t br_total = 0;
   
   for (auto cluster : fclusterList) {
     if (nProtCl == cluster.fNProt && nBary0Cl == cluster.fNBary0 && nLambCl == cluster.fNLamb && nSigmCl == cluster.fNSigm) {
-      pdgIdCl = TMath::Sign(cluster.fPdgId, clusterId);
-      break;
+      if (cluster.fBR == 1) {
+	br_total = cluster.fBR;
+	pdgIdCl = TMath::Sign(cluster.fPdgId, clusterId);
+	break;
+      }
+      else {
+	pdg2br [cluster.fPdgId] = cluster.fBR;
+	br_total += cluster.fBR;
+	if (br_total == 1) {
+	  Double_t br_integral = 0;
+	  Double_t rndm = gRandom->Rndm();
+	  for (auto pdg : pdg2br) {
+	    br_integral += pdg.second;	    
+	    if (rndm <= br_integral) {
+	      pdgIdCl = TMath::Sign(pdg.first, clusterId);
+	      break;
+	    }
+	  }
+	  break;
+	}	
+      }	
     }
     else {
       pdgIdCl=99999;
     }
   }
+  
   if (fConvertMode == 1 && pdgIdCl == 99999 && nbary > 7) {
     pdgIdCl = 1000000000 + nbary * 10 + nProtCl * 10000 + (nLambCl+nSigmCl) * 10000000;
-    pdgIdCl = TMath::Sign(pdgIdCl, clusterId);                                                                        
+    pdgIdCl = TMath::Sign(pdgIdCl, clusterId);                   
   }
 }
 
@@ -707,6 +757,7 @@ void PConverter::ConvertPHQMD()
   cout << "Clustertable used: " << fNameClustertable << endl;
   ClusterTablePrint();
   GetClusterList();
+  gRandom->SetSeed(0);
   
   cout << "Conversion mode " << fConvertMode;
   if (fConvertMode == 0)
