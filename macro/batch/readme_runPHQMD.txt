@@ -5,7 +5,8 @@ RUNNING & CONVERTING PHQMD
 1) run the PHQMD code
 2) stabilize the cluster output
 3) write the PHQMD-output into root-format and/or convert into full event - detector-input 
-(UniGen format) and/or format including freeze-out momentum
+(UniGen format) and/or format including freeze-out momentum and
+optionally, in addition, coordinats for all timesteps
 
 All 3 steps are performed with the batch-script. Single steps can be switched on or off. 
 

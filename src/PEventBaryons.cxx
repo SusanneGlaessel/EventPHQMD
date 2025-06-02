@@ -15,20 +15,33 @@ PEventBaryons::PEventBaryons()
     fB(0.),
     fRCluster(0.0),
     fStepNr(0),
-    fTime(0.)
+    fTime(0.),
+    fNpa(0)
 {
   fBaryons.clear();
+  fId2Baryon.clear();
 };
 
 void PEventBaryons::AddBaryon(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t Xpos, Float_t Ypos, Float_t Zpos, Float_t Mass, Int_t clusterId, Int_t nBary, Int_t baryonId, Int_t prodId, Int_t prodchanel, Float_t TimeFreeze, Float_t Ebin)
 {
   fBaryons.push_back(PBaryon(pdgId, Px, Py, Pz, Xpos, Ypos, Zpos, Mass, clusterId, nBary, baryonId, prodId, prodchanel, TimeFreeze, Ebin));
+  fId2Baryon [baryonId] = fNpa;  
+  fNpa += 1;
 };
 
 PBaryon PEventBaryons::GetBaryon(Int_t ibaryon) const
 {
-  if(ibaryon < 0 || ibaryon >= fNBaryons + fNAntiBaryons) throw runtime_error("\n Baryon " + to_string(ibaryon) + " not found in current event!");
+  if(ibaryon < 0 || ibaryon >= fNpa) throw runtime_error("\n Baryon " + to_string(ibaryon) + " not found in current event!");
   return ((PBaryon) fBaryons.at(ibaryon));
+}
+
+PBaryon PEventBaryons::GetBaryonId(Int_t baryonId) const
+{
+  auto it_baryon = fId2Baryon.find(baryonId);
+  if (it_baryon != fId2Baryon.end()) 
+    return ((PBaryon) fBaryons.at(it_baryon->second));
+  else
+    return PBaryon();
 }
 
 void PEventBaryons::SetParameters(Int_t eventId, Int_t nBaryons, Int_t nAntiBaryons, Int_t iSub, Int_t iNum, Float_t b, Float_t Rcluster, Int_t stepnr, Float_t time)
@@ -72,6 +85,8 @@ void PEventBaryons::Print(Option_t* option) const
 
 void PEventBaryons::Clear()
 { fBaryons.clear();
+  fId2Baryon.clear();
+  fNpa = 0;
 };
 
 ClassImp(PEventBaryons);

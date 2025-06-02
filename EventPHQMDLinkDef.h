@@ -13,6 +13,8 @@
 #pragma link C++ class RunFreeze+;
 #pragma link C++ class EventFreeze+;
 #pragma link C++ class ParticleFreeze+;
+#pragma link C++ class EventFemtoTs+;
+#pragma link C++ class ParticleFemto;
 #pragma link C++ class URun+;
 #pragma link C++ class UEvent+;
 #pragma link C++ class UParticle+;

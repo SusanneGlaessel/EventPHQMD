@@ -20,10 +20,15 @@
  **       - for clusters & anticlusters: [dataset].phqmd.root
  **       - for clusters only**: [dataset].phqmd_noanti.root
  **    b) root-file with complete events including the FREEZEOUT-TIME, -POSITION &  
- **       -MOMENTUM (EventFreeze). 
+ **       -MOMENTUM (EventFreeze). Flag: WriteEventFreeze = kTRUE.
  **       Output: 
  **       - for clusters & anticlusters: [dataset].phqmd_freeze.root
  **       - for clusters only**: [dataset].phqmd_freeze_noanti.root
+ **    c) root-file with complete events including the FREEZEOUT-TIME, -POSITION & -MOMENTUM 
+ **       (EventFreeze) + COORDINATES for all timesteps (EventFemtoTs). 
+ **       Flag: WriteEventFemto = kTRUE.
+ **       - for clusters & anticlusters: [dataset].phqmd_femto.root
+ **       - for clusters only**: [dataset].phqmd_femto_noanti.root. 
  **
  ** * In PHQMD clusters / anticlusters are recognised independently of their physical 
  ** existence. The cluster-baryons are listed separately in the outputfile. This 
@@ -64,6 +69,9 @@
  ** WriteUnigen         : Converted output is written in UniGen format 
  ** WriteEventFreeze    : Converted output is written in root format including freeze- 
  **                       out momentum
+ ** WriteEventFemto     : Converted output is written in root format including freeze- 
+ **                       out momentum + freeze-out coordinates are written for every 
+ **                       timestep
  ** SavePHQMDout        : Root-file containg PHQMD output is kept.
  ** ----------------------------------------------------------------------------------
  ** 
@@ -94,10 +102,11 @@ void convert_phqmd(TString indir             = "",
 		   Bool_t ConvertAnti        = kTRUE,
 		   Bool_t WriteUnigen        = kTRUE,
 		   Bool_t WriteEventFreeze   = kTRUE,
+		   Bool_t WriteEventFemto    = kTRUE,
 		   Bool_t SavePHQMDout       = kTRUE)
 {
   PConverter* pconverter = new PConverter();
-  pconverter->Init(indir, dataset, CreatePHQMDout, FreezeCoords, CreateWithUnstable, Convert, ConvertMode, ConvertAnti, WriteUnigen, WriteEventFreeze, firstevent);
+  pconverter->Init(indir, dataset, CreatePHQMDout, FreezeCoords, CreateWithUnstable, Convert, ConvertMode, ConvertAnti, WriteUnigen, WriteEventFreeze, WriteEventFemto, firstevent);
 
   if (CreatePHQMDout == kTRUE) {  
     pconverter->OpenPHQMDoutCreate();

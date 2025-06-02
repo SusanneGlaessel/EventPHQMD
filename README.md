@@ -4,7 +4,8 @@
 EventPHQMD converts PHQMD output files into:
 - a root-file containing all unconverted information from the PHQMD output (no clusters)
 - a root-file containing full events with hadrons & clusters (UniGen format or root-format
-including freeze-out momentum)
+including freeze-out momentum and optionally, in addition, coordinates
+for all timesteps)
 
 branch **PHQMD52 _Winn** is compatible with PHQMD version PHQMD52-Winn_2023
 

@@ -14,18 +14,20 @@
 class PBaryon : public TObject {
 
  private:
-  Int_t          fPdgId;        // PDG code
-  TVector3       fP;            // 3-momentum at timestep (pz, py, pz) (GeV/c)
-  TVector3       fX;            // Position 3-momentum at timestep (fm, fm, fm)
-  Float_t        fMass;         // Baryon mass (GeV/c)
-  Int_t          fClusterId;    // Number of cluster to which this baryons belongs to
-  Int_t          fnBary;        // Size of the cluster to which this baryon belongs to
-  Int_t          fBaryonId;     // Position of the baryon in PHSD vector
-  Int_t          fProdId;       // = -1: from projectile, = +1 from target (wo collision),
-                                // = other - made collision
-  Int_t          fProdChanel;   // proction chanel of baryon
-  Float_t        fProdTime;     // production time (fm/c)
-  Float_t        fEbin;         // binding energy of cluster per baryon (GeV)
+  Int_t          fPdgId;         // PDG code
+  TVector3       fP;             // 3-momentum at timestep (pz, py, pz) (GeV/c)
+  TVector3       fX;             // Position 3-momentum at timestep (fm, fm, fm)
+  Float_t        fMass;          // Baryon mass (GeV/c)
+  Int_t          fClusterId;     // Number of cluster to which this baryons belongs to
+  Int_t          fnBary;         // Size of the cluster to which this baryon belongs to
+  Int_t          fBaryonId;      // Position of the baryon in PHSD vector
+  Int_t          fProdId;        // = -1: from projectile, = +1 from target (wo collision),
+                                 // = other - made collision
+  Int_t          fProdChanel;    // proction chanel of baryon
+  Float_t        fProdTime;      // production time (fm/c)
+  Float_t        fEbin;          // binding energy of cluster per baryon (GeV)
+  Bool_t         fIsClusterBary; // baryon is part of physical cluster
+  Int_t          fIndex;         // Unique Id from UniGen/EventFreeze/EventFemto
   
  public:  
 
@@ -33,25 +35,27 @@ class PBaryon : public TObject {
   PBaryon(Int_t PdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t X, Float_t Y, Float_t Z, Float_t Mass, Int_t clusterId, Int_t nBary, Int_t baryonId, Int_t prodId, Int_t prodchanel, Float_t prodtime, Float_t ebin);
   virtual ~PBaryon();
 
-  inline Int_t    GetPdg()         const {return fPdgId;}
-  inline Float_t  Px()             const {return fP.X();}
-  inline Float_t  Py()             const {return fP.Y();}
-  inline Float_t  Pz()             const {return fP.Z();}
-  inline TVector3 GetMomentum()    const {return fP;}
+  inline Int_t    GetPdg()           const {return fPdgId;}
+  inline Float_t  Px()               const {return fP.X();}
+  inline Float_t  Py()               const {return fP.Y();}
+  inline Float_t  Pz()               const {return fP.Z();}
+  inline TVector3 GetMomentum()      const {return fP;}
   inline TLorentzVector GetMomentum4() const {return TLorentzVector(fP.X(),fP.Y(),fP.Z(),E());}
-  inline Float_t  Mass()           const {return fMass;}
-  inline Float_t  E()              const {return TMath::Sqrt(fMass*fMass + fP.X()*fP.X() + fP.Y()*fP.Y() + fP.Z()*fP.Z());}
-  inline Float_t  X()              const {return fX.X();}
-  inline Float_t  Y()              const {return fX.Y();}
-  inline Float_t  Z()              const {return fX.Z();}     
-  inline TVector3 GetPosition()    const {return TVector3(fX.X(),fX.Y(),fX.Z());}
-  inline Int_t    GetClusterId()   const {return fClusterId;}
-  inline Int_t    GetNBary()       const {return fnBary;}
-  inline Int_t    GetBaryonId()    const {return fBaryonId;}
-  inline Int_t    GetProdId()      const {return fProdId;}
-  inline Int_t    GetProdChanel()  const {return fProdChanel;}
-  inline Float_t  GetProdTime()   const  {return fProdTime;}
-  inline Float_t  GetEbin()        const {return fEbin;} 
+  inline Float_t  Mass()             const {return fMass;}
+  inline Float_t  E()                const {return TMath::Sqrt(fMass*fMass + fP.X()*fP.X() + fP.Y()*fP.Y() + fP.Z()*fP.Z());}
+  inline Float_t  X()                const {return fX.X();}
+  inline Float_t  Y()                const {return fX.Y();}
+  inline Float_t  Z()                const {return fX.Z();}     
+  inline TVector3 GetPosition()      const {return TVector3(fX.X(),fX.Y(),fX.Z());}
+  inline Int_t    GetClusterId()     const {return fClusterId;}
+  inline Int_t    GetNBary()         const {return fnBary;}
+  inline Int_t    GetBaryonId()      const {return fBaryonId;}
+  inline Int_t    GetProdId()        const {return fProdId;}
+  inline Int_t    GetProdChanel()    const {return fProdChanel;}
+  inline Float_t  GetProdTime()      const  {return fProdTime;}
+  inline Float_t  GetEbin()          const {return fEbin;}
+  inline Bool_t   GetIsClusterBary() const {return fIsClusterBary;}
+  inline Int_t    Index()            const {return fIndex;}
 
   inline void SetPdg(Int_t pdgId)             {fPdgId = pdgId;}
   inline void SetPx(Float_t Px)               {fP.SetX(Px);}
@@ -72,6 +76,8 @@ class PBaryon : public TObject {
   inline void SetProdChanel(Int_t prodchanel) {fProdChanel = prodchanel;}
   inline void SetProdTime(Float_t prodtime)   {fProdTime = prodtime;}
   inline void SetEbin(Float_t ebin)           {fEbin = ebin;}
+  inline void SetIsClusterBary(Bool_t is)     {fIsClusterBary = is;}
+  inline void SetIndex(Int_t index)           {fIndex = index;}
  
  
   void Print() const;

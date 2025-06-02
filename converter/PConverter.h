@@ -25,6 +25,7 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::vector;
+using std::map;
 
 class PRun;
 class PEventHadrons;
@@ -42,11 +43,14 @@ class PConverter
     TVector3 fP;
     Float_t fEnergy;
     Float_t fEbin;
+    TVector3 fX;
     TLorentzVector fXTFreeze;
     TLorentzVector fPEFreeze;
     Int_t fBaryonId;
-    Int_t fClusterId;
-  PBaryon_cluster(Int_t baryonId, Int_t PdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Float_t Ebin) : fBaryonId(baryonId), fPdgId(PdgId), fP(P), fEnergy(energy), fXTFreeze(XTFreeze), fPEFreeze(PEFreeze), fEbin(Ebin) {};
+    
+  PBaryon_cluster(Int_t baryonId, Int_t PdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Float_t Ebin) : fBaryonId(baryonId), fPdgId(PdgId), fP(P), fEnergy(energy), fXTFreeze(XTFreeze), fPEFreeze(PEFreeze), fEbin(Ebin) { fX = {0.0, 0.0, 0.0}; };
+  PBaryon_cluster(Int_t baryonId, Int_t PdgId, TVector3 P, Float_t energy, TVector3 X) : fBaryonId(baryonId), fPdgId(PdgId), fP(P), fEnergy(energy), fX(X) {fXTFreeze = {0.0, 0.0, 0.0, 0.0}; fPEFreeze = {0.0, 0.0, 0.0, 0.0}; };
+  PBaryon_cluster(Int_t PdgId, Float_t Ebin) : fBaryonId(-1), fPdgId(0), fEnergy(0.0), fEbin(Ebin) { fP = {0.0, 0.0, 0.0}; fXTFreeze = {0.0, 0.0, 0.0, 0.0}; fX = {0.0, 0.0, 0.0}; fPEFreeze = {0.0, 0.0, 0.0, 0.0}; };
   };
 
   struct ClusterEntry {
@@ -60,7 +64,7 @@ class PConverter
   ClusterEntry(Int_t pdgId, Int_t nProt, Int_t nBary0, Int_t nLamb, Int_t nSigm, Double_t br) : fPdgId(pdgId), fNProt(nProt), fNBary0(nBary0), fNLamb(nLamb), fNSigm(nSigm), fBR(br) {};
   };
 
-  void Init(TString indir = "", TString dataset = "", Bool_t CreatePHQMDout = kTRUE, Bool_t FreezeCoords = kFALSE, Bool_t CreateOutWithUnstable = kFALSE, Bool_t Convert = kFALSE, Bool_t WriteUnigen = kTRUE, Bool_t ConvertMode = 0, Bool_t ConvertAnti = kTRUE, Bool_t WriteEventFreeze = kFALSE,  Int_t firstevent = 0);
+  void Init(TString indir = "", TString dataset = "", Bool_t CreatePHQMDout = kTRUE, Bool_t FreezeCoords = kFALSE, Bool_t CreateOutWithUnstable = kFALSE, Bool_t Convert = kFALSE, Bool_t ConvertMode = 0, Bool_t ConvertAnti = kTRUE, Bool_t WriteUnigen = kTRUE, Bool_t WriteEventFreeze = kFALSE,  Bool_t WriteEventFemto = kFALSE,  Int_t firstevent = 0);
   
   void OpenPHQMDoutCreate();
   void OpenPHQMDoutRead();
@@ -80,7 +84,7 @@ class PConverter
 
   void InitCreatePHQMDout(Bool_t ConvertAnti = kTRUE, Int_t firstevent = 0);
   void InitCreatePHQMDoutUnstable(Bool_t ConvertAnti = kTRUE, Int_t firstevent = 0);
-  void InitConvert(Bool_t WriteUnigen = kTRUE, Bool_t WriteEventFreeze = kTRUE, Bool_t ConvertAnti = kTRUE);
+  void InitConvert(Bool_t WriteUnigen = kTRUE, Bool_t WriteEventFreeze = kTRUE, Bool_t WriteEventFemto = kTRUE, Bool_t ConvertAnti = kTRUE);
 
   void ClusterTablePrint();
   void GetClusterList();
@@ -89,7 +93,9 @@ class PConverter
   void GetBaryonContent(std::vector<PBaryon_cluster> baryons_cluster, Int_t &nProt, Int_t &nBary0, Int_t &nLamb, Int_t &nSigm, Int_t &charge);
   Float_t CalculateClusterBindingEnergy(std::vector<PBaryon_cluster> baryons_cluster);
   void CalculateClusterKin(std::vector<PBaryon_cluster> baryons_cluster, Float_t &Px, Float_t &Py, Float_t &Pz, Float_t &energy);
-  void CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t &TsFreeze, Float_t &TimeFreezeCluster, Float_t &deltaT);
+  void CalculateClusterPos(std::vector<PBaryon_cluster> baryons_cluster, Float_t &X, Float_t &Y, Float_t &Z);
+  void CalculateClusterProductionTime(Int_t ievent_last_ts, Int_t clusterId, Int_t nbary, Float_t &TimeProductionCluster);
+  void CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Float_t TimeProductionCluster, Int_t &TsFreeze, Float_t &TimeFreezeCluster, Float_t &deltaT);
   void CalculateFreezeOutCoord(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t TsFreeze,  Float_t TimeFreezeCluster, Float_t deltaT, TVector3 &posfo_cluster, TVector3 &pfo_cluster, Float_t &energyFreeze);
 
   TString fIndir = "";
@@ -114,12 +120,12 @@ class PConverter
   Int_t  fConvertMode;
   Bool_t fWriteUnigen;
   Bool_t fWriteEventFreeze;
+  Bool_t fWriteEventFemto;
   Bool_t fConvertAnti;
   
   Float_t fEbin_max;
   Int_t fFirstEvent;
-  std::vector<float> fts_time;
-  //Int_t fNTIME;
+  map<int, vector<float>> feventId2time;
 
   TFile *foutputPHQMD;
   PRun *fpheader;
@@ -128,11 +134,10 @@ class PConverter
   TTree *ftreeH;
   TTree *ftreeB;
 
-  std::map<int,int> feventId2EntryH;
-  std::map<int,int[30]> feventId2EntryB;
-  std::vector<std::map<int,int>> fbaryonId2pos;
-  std::vector<std::map<int,int>> fbaryons2hadrons;
-  std::vector<std::map<int,vector<int>>> fclusterId2baryonIds;
+  map<int,int> feventId2EntryH;
+  map<int,int[30]> feventId2EntryB;
+  vector<map<int,int>> fbaryons2hadrons;
+  vector<map<int,vector<int>>> fclusterId2baryonIds;
 
   std::vector<ClusterEntry> fclusterList;
 

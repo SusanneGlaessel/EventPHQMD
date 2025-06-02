@@ -193,7 +193,7 @@ if [ "$ConvertToRoot" == 1 ]; then
     fi
 
     cd $CONVERTDIR/macro
-    root -l -b -q  "$script_convert(\"$OUTDIR\",\"$XXXXX\",$firstevent,$CreateRoot,$FreezeCoords,$CreateUnstab,$Convert,$CountAllClusters,$ConvertAntiClusters,$WriteUnigen,$WriteFreeze,$SaveRoot)"
+    root -l -b -q  "$script_convert(\"$OUTDIR\",\"$XXXXX\",$firstevent,$CreateRoot,$FreezeCoords,$CreateUnstab,$Convert,$CountAllClusters,$ConvertAntiClusters,$WriteUnigen,$WriteFreeze,$WriteFemto,$SaveRoot)"
 
 
 fi
