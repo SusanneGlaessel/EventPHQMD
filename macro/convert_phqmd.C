@@ -20,15 +20,20 @@
  **       - for clusters & anticlusters: [dataset].phqmd.root
  **       - for clusters only**: [dataset].phqmd_noanti.root
  **    b) root-file with complete events including the FREEZEOUT-TIME, -POSITION &  
- **       -MOMENTUM (EventFreeze). 
+ **       -MOMENTUM (EventFreeze). Flag: WriteEventFreeze = kTRUE.
  **       Output: 
  **       - for clusters & anticlusters: [dataset].phqmd_freeze.root
  **       - for clusters only**: [dataset].phqmd_freeze_noanti.root
+ **    c) root-file with complete events including the FREEZEOUT-TIME, -POSITION & -MOMENTUM 
+ **       (EventFreeze) + COORDINATES for all timesteps (EventFemtoTs). 
+ **       Flag: WriteEventFemto = kTRUE.
+ **       - for clusters & anticlusters: [dataset].phqmd_femto.root
+ **       - for clusters only**: [dataset].phqmd_femto_noanti.root. 
  **
  ** * In PHQMD clusters / anticlusters are recognised independently of their physical 
  ** existence. The cluster-baryons are listed separately in the outputfile. This 
  ** routine builds clusters from the single baryons based on their cluster-ID and 
- ** identifies physical clusters according to the cluster_table.root. Baryons from 
+ ** identifies physical clusters according to the cluster_table.dat. Baryons from 
  ** unphysical clusters (eg. p-p) are counted as single baryons (see options below).
  **
  ** ** PHQMD writes baryons and anti-baryons into two separate files. The conversion 
@@ -64,6 +69,9 @@
  ** WriteUnigen         : Converted output is written in UniGen format 
  ** WriteEventFreeze    : Converted output is written in root format including freeze- 
  **                       out momentum
+ ** WriteEventFemto     : Converted output is written in root format including freeze- 
+ **                       out momentum + freeze-out coordinates are written for every 
+ **                       timestep
  ** SavePHQMDout        : Root-file containg PHQMD output is kept.
  ** ----------------------------------------------------------------------------------
  ** 
@@ -87,17 +95,18 @@ void convert_phqmd(TString indir             = "",
 		   TString dataset           = "00001",
 		   Int_t  firstevent         = 0,
 		   Bool_t CreatePHQMDout     = kTRUE,
-		   Bool_t FreezeCoords       = kFALSE,
+		   Bool_t FreezeCoords       = kTRUE,
 		   Bool_t CreateWithUnstable = kTRUE,
 		   Bool_t Convert            = kTRUE,
 		   Int_t  ConvertMode        = 1,
 		   Bool_t ConvertAnti        = kTRUE,
 		   Bool_t WriteUnigen        = kTRUE,
-		   Bool_t WriteEventFreeze   = kFALSE,
+		   Bool_t WriteEventFreeze   = kTRUE,
+		   Bool_t WriteEventFemto    = kTRUE,
 		   Bool_t SavePHQMDout       = kTRUE)
 {
   PConverter* pconverter = new PConverter();
-  pconverter->Init(indir, dataset, CreatePHQMDout, FreezeCoords, CreateWithUnstable, Convert, ConvertMode, ConvertAnti, WriteUnigen, WriteEventFreeze, firstevent);
+  pconverter->Init(indir, dataset, CreatePHQMDout, FreezeCoords, CreateWithUnstable, Convert, ConvertMode, ConvertAnti, WriteUnigen, WriteEventFreeze, WriteEventFemto, firstevent);
 
   if (CreatePHQMDout == kTRUE) {  
     pconverter->OpenPHQMDoutCreate();

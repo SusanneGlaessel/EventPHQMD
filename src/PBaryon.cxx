@@ -8,11 +8,13 @@ PBaryon::PBaryon()
     fMass(0.0),
     fClusterId(0),
     fnBary(0),
-    fBaryonId(0),
+    fBaryonId(-1),
     fProdId(0),
     fProdChanel(0),
     fEbin(0),
-    fProdTime(0.)
+    fProdTime(0.),
+    fIsClusterBary(kFALSE),
+    fIndex(-1)
 {
   fP.SetXYZ(0.,0.,0.);
   fX.SetXYZ(0.,0.,0.);
@@ -27,7 +29,9 @@ PBaryon::PBaryon(Int_t PdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t X, Flo
     fProdId(prodId),
     fProdChanel(prodchanel),
     fProdTime(prodtime),
-    fEbin(ebin)
+    fEbin(ebin),
+    fIsClusterBary(kFALSE),
+    fIndex(-1)
 {
   fP.SetXYZ(Px,Py,Pz);
   fX.SetXYZ(X,Y,Z);

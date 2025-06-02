@@ -79,9 +79,6 @@ if [ "$RunPhqmdCode" == 1 ]; then
  "$EOS",         iqmdeos  ! EoS for QMD option IPHQMD=1 ; =0: hard EOS without M.D.I; =1 soft EoS; =2 soft EoS with mom. dependence 
  3,         IFLAG_Res_SACA ! =1 include ALL resonances with their decay to SACA; =2 - only nucleons; =3 nucleons and hyperons
  0,         IfragWigDen  ! =0: no; =1 yes, light clusters formation according to the Wigner density
- 3,         ILOC =3 location of HSD data files
- 0,         IOUT =0
- 0,         IRES
  " > "inputPHSD"
 
     time ./phqmd
@@ -190,13 +187,11 @@ if [ "$ConvertToRoot" == 1 ]; then
 	    exit 1
 	fi
 
-	cd $CONVERTDIR/macro
-	root -l -b -q  "$script_convert(\"$OUTDIR\",\"$XXXXX\",$firstevent,$CreateRoot,$FreezeCoords,$CreateUnstab,$Convert,$CountAllClusters,$ConvertAntiClusters,$WriteUnigen,$WriteFreeze,$SaveRoot)"
+    fi
 
-    else 
-	cd $CONVERTDIR/macro
-	root -l -b -q  "$script_convert(\"$OUTDIR\",\"$XXXXX\",$firstevent,$CreateRoot,$FreezeCoords,$CreateUnstab,$Convert,$CountAllClusters,$ConvertAntiClusters,$WriteUnigen,$WriteFreeze,$SaveRoot)"
-    fi	
+    cd $CONVERTDIR/macro
+    root -l -b -q  "$script_convert(\"$OUTDIR\",\"$XXXXX\",$firstevent,$CreateRoot,$FreezeCoords,$CreateUnstab,$Convert,$CountAllClusters,$ConvertAntiClusters,$WriteUnigen,$WriteFreeze,$WriteFemto,$SaveRoot)"
+
 
 fi
 

@@ -50,6 +50,8 @@ set (SOURCES
   EventFreeze/RunFreeze.cxx
   EventFreeze/EventFreeze.cxx
   EventFreeze/ParticleFreeze.cxx
+  EventFreeze/EventFemtoTs.cxx
+  EventFreeze/ParticleFemto.cxx
   unigen/URun.cxx
   unigen/UEvent.cxx
   unigen/UParticle.cxx

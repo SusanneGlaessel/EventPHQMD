@@ -23,6 +23,7 @@ class RunFreeze : public TNamed {
   Float_t fpTarg;          // Target momentum per nucleon (GeV)            
   Float_t fBMin;           // Minimum impact parameter (fm)
   Float_t fBMax;           // Maximum impact parameter (fm)
+  Int_t   fNTime;          // Number of timesteps
   Int_t   fIBweight;       // Impact paramter weighting
                            // =0: constant step in B = DBimp (flat distribution)
                            // =1: choose B by Monte-Carlo in [Bmin,Bmax] (geometrical weights)
@@ -33,6 +34,7 @@ class RunFreeze : public TNamed {
   RunFreeze();
   virtual ~RunFreeze();
   RunFreeze(const char* generator, const char* comment, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Int_t nEvents);
+  RunFreeze(const char* generator, const char* comment, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t nTime, Int_t IBweight, Int_t nEvents);
   void Print(Option_t* = "") const;
   
   inline TString GetGenerartor() const {return fGenerator;}
@@ -43,7 +45,8 @@ class RunFreeze : public TNamed {
   inline Int_t   GetZTarg()      const {return fZTarg;}            
   inline Float_t GetElab()       const {return fELab;}
   inline Float_t GetBMin()       const {return fBMin;}     
-  inline Float_t GetBMax()       const {return fBMax;}    
+  inline Float_t GetBMax()       const {return fBMax;}
+  inline Float_t GetNTime()      const {return fNTime;}    
   inline Int_t   GetIBweight()   const {return fIBweight;}        
   inline Int_t   GetNEvents()    const {return fNEvents;}
 

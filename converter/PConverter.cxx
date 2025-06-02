@@ -1,5 +1,6 @@
 #include "PConverter.h"
 #include "TMath.h"
+#include "TRandom.h"
 #include "TNamed.h"
 #include "TSystem.h"
 #include "PRun.h"
@@ -10,6 +11,8 @@
 #include "RunFreeze.h"
 #include "EventFreeze.h"
 #include "ParticleFreeze.h"
+#include "EventFemtoTs.h"
+#include "ParticleFemto.h"
 #include "URun.h"
 #include "UEvent.h"
 #include <string>
@@ -21,7 +24,7 @@ using namespace std;
 
 // ------------------------- Initialisation -----------------------------------------------
 
-void PConverter::Init(TString indir, TString dataset, Bool_t CreatePHQMDout, Bool_t FreezeCoords, Bool_t CreateOutWithUnstable, Bool_t Convert, Bool_t ConvertMode, Bool_t ConvertAnti, Bool_t WriteUnigen, Bool_t WriteEventFreeze, Int_t firstevent)
+void PConverter::Init(TString indir, TString dataset, Bool_t CreatePHQMDout, Bool_t FreezeCoords, Bool_t CreateOutWithUnstable, Bool_t Convert, Bool_t ConvertMode, Bool_t ConvertAnti, Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t WriteEventFemto, Int_t firstevent)
 {
   fFreezeCoords = FreezeCoords;
   fCreatePHQMDout = CreatePHQMDout;
@@ -40,8 +43,8 @@ void PConverter::Init(TString indir, TString dataset, Bool_t CreatePHQMDout, Boo
   if (CreatePHQMDout == kFALSE && CreateOutWithUnstable == kTRUE)
    throw runtime_error("<CreateOutWithUnstable> is set to true, but no root-file from unconverted PHQMD-ouput files is created.\nSet <CreatePHQMDout> to true or set <CreateOutWithUnstable> to false.");
 
-  if (Convert == kTRUE && (WriteUnigen == kFALSE && WriteEventFreeze == kFALSE))
-    throw runtime_error("<Convert> is set to true, but no output-file for converted events is defined.\nSet <WriteUnigen> or <WriteEventFreeze> to true or set <Convert> to false.");
+  if (Convert == kTRUE && (WriteUnigen == kFALSE && WriteEventFreeze == kFALSE && WriteEventFemto == kFALSE ))
+    throw runtime_error("<Convert> is set to true, but no output-file for converted events is defined.\nSet <WriteUnigen> or <WriteEventFreeze> or <WriteEventFemto> to true or set <Convert> to false.");
 
   cout << "********************************************************************" <<endl;
   string dataset_str(fDataset.Data());
@@ -56,7 +59,7 @@ void PConverter::Init(TString indir, TString dataset, Bool_t CreatePHQMDout, Boo
       InitCreatePHQMDoutUnstable(ConvertAnti, firstevent);
   }
   if (Convert == kTRUE)
-    InitConvert(WriteUnigen, WriteEventFreeze, ConvertAnti);
+    InitConvert(WriteUnigen, WriteEventFreeze, WriteEventFemto, ConvertAnti);
 }
 
 void PConverter::InitCreatePHQMDout(Bool_t ConvertAnti, Int_t firstevent)
@@ -118,13 +121,14 @@ void PConverter::InitCreatePHQMDoutUnstable(Bool_t ConvertAnti, Int_t firstevent
   else throw runtime_error("\n  " + finputFileBaryonFrigaAntiUnstable + " does not exist! Set 'CreateWithUnstable = kFALSE'. \n ");
 }
 
-void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t ConvertAnti)
+void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t WriteEventFemto, Bool_t ConvertAnti)
 {
   /** Initializes output for conversion. **/
   
   fEbin_max = 0.0;
   fWriteUnigen = WriteUnigen;
   fWriteEventFreeze = WriteEventFreeze;
+  fWriteEventFemto = WriteEventFemto;
   fConvertAnti = ConvertAnti;
 
   if (fDataset.Length() == 0) {
@@ -137,18 +141,33 @@ void PConverter::InitConvert(Bool_t WriteUnigen, Bool_t WriteEventFreeze, Bool_t
       if (fConvertAnti == kTRUE) frootFileFreeze = "phqmd_freeze.root";
       if (fConvertAnti == kFALSE) frootFileFreeze = "phqmd_freeze_noanti.root";
     }
+    if (fWriteEventFemto == kTRUE) {
+      if (fConvertAnti == kTRUE) frootFileFreeze = "phqmd_femto.root";
+      if (fConvertAnti == kFALSE) frootFileFreeze = "phqmd_femto_noanti.root";
+    }
     fNameClustertable = "cluster_table.dat";
   }
 
   else {
     frootFileP =  Form("%s/root/%s.phqmd_out.root",fIndir.Data(),fDataset.Data());
+
+    TString clusterdir;
+    if (fConvertMode == 0)
+      clusterdir = "smallclusters";
+    else
+      clusterdir = "allclusters";
+    
     if (fWriteUnigen == kTRUE) {
-      if (fConvertAnti == kTRUE)  frootFileDet    = Form("%s/root/unigen/%s.phqmd.root",fIndir.Data(),fDataset.Data());
-      if (fConvertAnti == kFALSE) frootFileDet    = Form("%s/root/unigen/%s.phqmd_noanti.root",fIndir.Data(),fDataset.Data());
+      if (fConvertAnti == kTRUE)  frootFileDet    = Form("%s/root/unigen/%s/%s.phqmd.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileDet    = Form("%s/root/unigen/%s/%s.phqmd_noanti.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
     } 
-    if (fWriteEventFreeze == kTRUE) {
-      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze.root",fIndir.Data(),fDataset.Data());
-      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/root/freeze/%s.phqmd_freeze_noanti.root",fIndir.Data(),fDataset.Data());
+    if (fWriteEventFreeze == kTRUE && fWriteEventFemto == kFALSE) {
+      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/root/freeze/%s/%s.phqmd_freeze.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/root/freeze/%s/%s.phqmd_freeze_noanti.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
+    }
+    if (fWriteEventFemto == kTRUE) {
+      if (fConvertAnti == kTRUE)  frootFileFreeze = Form("%s/root/femto/%s/%s.phqmd_femto.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
+      if (fConvertAnti == kFALSE) frootFileFreeze = Form("%s/root/femto/%s/%s.phqmd_femto_noanti.root",fIndir.Data(),clusterdir.Data(),fDataset.Data());
     }
     fNameClustertable = Form("%s/root/cluster_table.dat",fIndir.Data()); 
   }
@@ -236,15 +255,18 @@ void PConverter::ClusterTablePrint()
   
   char clustername [80];
   Int_t pdgId, nProt, nBary0, nLamb, nSigm;
+  Double_t br;
 
   FILE *ClusterTable = fopen(fNameClustertable, "r");
 
-  printf("-------------------------\n");
+  printf("------------------------------------\n");
+  printf("name             pdg            br\n");
+  printf("------------------------------------\n");
   while(1) {
-    if (fscanf(ClusterTable, "%s %i %i %i %i %i\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm)==EOF) break;
-    printf("%-12s %-10i\n", clustername, pdgId);
+    if (fscanf(ClusterTable, "%s %i %i %i %i %i %lf\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm, &br)==EOF) break;
+    printf("%-16s %-10i %8.2f\n", clustername, pdgId, br);
   }
-  printf("-------------------------\n");
+  printf("------------------------------------\n");
 
   fclose(ClusterTable);
 }
@@ -255,16 +277,31 @@ void PConverter::GetClusterList()
   
   char clustername [80];
   Int_t pdgId, nProt, nBary0, nLamb, nSigm;
+  Double_t br;
 
+  std::map<Int_t, std::vector<Double_t>> content2br;
+  content2br.clear();
+  
   fclusterList.clear();
   
   FILE *ClusterTable = fopen(fNameClustertable, "r");
 
   while(1) {
-    if (fscanf(ClusterTable, "%s %i %i %i %i %i\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm)==EOF) break;
-    fclusterList.push_back(ClusterEntry(pdgId, nProt, nBary0, nLamb, nSigm));
+    if (fscanf(ClusterTable, "%s %i %i %i %i %i %lf\n", clustername, &pdgId, &nProt, &nBary0, &nLamb, &nSigm, &br)==EOF) break;
+    fclusterList.push_back(ClusterEntry(pdgId, nProt, nBary0, nLamb, nSigm, br));
   }
 
+  for (auto content : content2br) {
+    Double_t br_total = 0;
+    for (int i = 0; i < content.second.size(); i++) {
+      br_total += content.second[i];
+    }
+    if (br_total != 1) {
+      Int_t pdgA   = 10; Int_t pdgZ = 10000; Int_t pdgL = 10000000; 
+      throw runtime_error("\n Clustertable: Sum of branching ratios is " + to_string(br_total) + " != 1 for: A = " + to_string((content.first % pdgZ) / pdgA) + ", Z = " + to_string((content.first % pdgL) / pdgZ) + ", L = " + to_string((content.first % (10 * pdgL)) / pdgL) + ", S = " + to_string((content.first % (100 * pdgL)) / (pdgL*10)) + "!");
+    }
+  }
+    
   fclose(ClusterTable);
 }
 
@@ -282,19 +319,43 @@ void PConverter::GetClusterPdg(std::vector<PBaryon_cluster> baryons_cluster, Int
     if (TMath::Abs(pdgId) == 3122) nLambCl ++;
     if (TMath::Abs(pdgId) == 3212) nSigmCl ++;
   }
+
+  std::map<Int_t, Double_t> pdg2br;
+  pdg2br.clear();
+  Double_t br_total = 0;
   
   for (auto cluster : fclusterList) {
     if (nProtCl == cluster.fNProt && nBary0Cl == cluster.fNBary0 && nLambCl == cluster.fNLamb && nSigmCl == cluster.fNSigm) {
-      pdgIdCl = TMath::Sign(cluster.fPdgId, clusterId);
-      break;
+      if (cluster.fBR == 1) {
+	br_total = cluster.fBR;
+	pdgIdCl = TMath::Sign(cluster.fPdgId, clusterId);
+	break;
+      }
+      else {
+	pdg2br [cluster.fPdgId] = cluster.fBR;
+	br_total += cluster.fBR;
+	if (br_total == 1) {
+	  Double_t br_integral = 0;
+	  Double_t rndm = gRandom->Rndm();
+	  for (auto pdg : pdg2br) {
+	    br_integral += pdg.second;	    
+	    if (rndm <= br_integral) {
+	      pdgIdCl = TMath::Sign(pdg.first, clusterId);
+	      break;
+	    }
+	  }
+	  break;
+	}	
+      }	
     }
     else {
       pdgIdCl=99999;
     }
   }
+  
   if (fConvertMode == 1 && pdgIdCl == 99999 && nbary > 7) {
     pdgIdCl = 1000000000 + nbary * 10 + nProtCl * 10000 + (nLambCl+nSigmCl) * 10000000;
-    pdgIdCl = TMath::Sign(pdgIdCl, clusterId);                                                                        
+    pdgIdCl = TMath::Sign(pdgIdCl, clusterId);                   
   }
 }
 
@@ -327,19 +388,76 @@ void PConverter::CalculateClusterKin(std::vector<PBaryon_cluster> baryons_cluste
   energy = TMath::Sqrt(Mass*Mass+Px*Px+Py*Py+Pz*Pz);
 }
 
-void PConverter::CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t &TsFreeze, Float_t &TimeFreezeCluster, Float_t &deltaT)
+void PConverter::CalculateClusterPos(std::vector<PBaryon_cluster> baryons_cluster, Float_t &X, Float_t &Y, Float_t &Z)
+{
+  /** Calculates position of cluster. **/
+  
+  X = 0.; Y = 0.; Z = 0.; 
+  for (int ibary = 0; ibary < baryons_cluster.size(); ibary++) {
+    X += baryons_cluster.at(ibary).fX.X() / baryons_cluster.size();
+    Y += baryons_cluster.at(ibary).fX.Y() / baryons_cluster.size();
+    Z += baryons_cluster.at(ibary).fX.Z() / baryons_cluster.size();
+  }	   
+}
+
+void PConverter::CalculateClusterProductionTime(Int_t clusterId, Int_t nbary, Float_t &TimeProductionCluster)
+{
+  /** Calculates formation time of a cluster. **/
+
+  Int_t final_step = fpheader->GetNTime();
+  auto it_ievent = feventId2EntryB.find(feventB->GetEventId());
+  Int_t ievent_final_step = it_ievent->second[final_step];
+  auto it_cluster = fclusterId2baryonIds[ievent_final_step].find(clusterId);
+  
+  std::vector<int> cluster_baryons;
+  cluster_baryons.clear();
+  for (auto baryId : it_cluster->second) 
+    cluster_baryons.push_back(baryId);
+
+  Float_t time = feventB->GetTime();
+  for (int istep = final_step; istep >= 0; istep --) {
+    Int_t ievent_step = it_ievent->second[istep];
+    ftreeB->GetEntry(ievent_step);
+    
+    if (fclusterId2baryonIds[ievent_step].find(clusterId) != fclusterId2baryonIds[ievent_step].end()) {
+   
+      auto it = fclusterId2baryonIds[ievent_step].find(clusterId);
+      Int_t cluster_size_ts = it->second.size();
+
+      if (cluster_size_ts != nbary) break;
+
+      Bool_t foundId = kFALSE;
+      for (int baryIdlast : cluster_baryons) {
+	foundId = kFALSE;
+	for (int baryIdTs : it->second) {
+	  if (baryIdlast == baryIdTs) foundId = kTRUE;
+	}
+	if (foundId == kFALSE) break;
+      }
+      if (foundId == kFALSE) break;
+      time = feventB->GetTime();
+    }
+  }
+  TimeProductionCluster = time;
+  ftreeB->GetEntry(ievent_final_step); 
+}
+
+void PConverter::CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Float_t TimeProductionCluster, Int_t &TsFreeze, Float_t &TimeFreezeCluster, Float_t &deltaT)
 {
   /** Calculates freezeout time of a cluster. **/
-  
+
+  Int_t eventId = feventB->GetEventId();
   std::vector<float> timefo_bary;
   for (int ibary = 0; ibary < nbary; ibary ++)
     timefo_bary.push_back(baryons_cluster.at(ibary).fXTFreeze.T());
 
+  timefo_bary.push_back(TimeProductionCluster);
+
   TimeFreezeCluster = *max_element(timefo_bary.begin(), timefo_bary.end());
-  auto it_TsFreeze_up = std::lower_bound(fts_time.begin(), fts_time.end(), TimeFreezeCluster);
-  TsFreeze = std::distance(fts_time.begin(), it_TsFreeze_up); // first timestep after freezeout-time
-  if (it_TsFreeze_up == fts_time.end()) TsFreeze --;
-  deltaT = TimeFreezeCluster - fts_time.at(TsFreeze);
+  auto it_TsFreeze_up = std::lower_bound(feventId2time.find(eventId)->second.begin(), feventId2time.find(eventId)->second.end(), TimeFreezeCluster);
+  TsFreeze = std::distance(feventId2time.find(eventId)->second.begin(), it_TsFreeze_up); // first timestep after freezeout-time
+  if (it_TsFreeze_up == feventId2time.find(eventId)->second.end()) TsFreeze --;
+  deltaT = TimeFreezeCluster - feventId2time.find(eventId)->second.at(TsFreeze);
 }
 
 void PConverter::CalculateFreezeOutCoord(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t TsFreeze, Float_t TimeFreezeCluster, Float_t deltaT, TVector3 &posfo_cluster, TVector3 &pfo_cluster, Float_t &energyFreeze)
@@ -352,8 +470,7 @@ void PConverter::CalculateFreezeOutCoord(std::vector<PBaryon_cluster> baryons_cl
 
   Float_t mass_cluster = 0;
   for (int ibary = 0; ibary < nbary; ibary++) {	      
-    auto it_bary = fbaryonId2pos[ieventFreeze].find(baryons_cluster.at(ibary).fBaryonId);
-    PBaryon baryon_fo = feventB->GetBaryon(it_bary->second);
+    PBaryon baryon_fo = feventB->GetBaryonId(baryons_cluster.at(ibary).fBaryonId);
     for (int i = 0; i < 3; i++) {
       if (baryons_cluster.at(ibary).fXTFreeze.T() < TimeFreezeCluster)
 	posfo_cluster(i) += baryon_fo.GetPosition()(i) + deltaT * baryon_fo.GetMomentum()(i) / baryon_fo.E();
@@ -471,7 +588,7 @@ void PConverter::CreatePEventsHadrons()
 	throw runtime_error("Unexpected end of file phsd.dat at run " + to_string(inum));	
       if(fscanf(BulkFile, "%i %f %f %f %f %f %f %f %f\n", &nParticipants, &phi.at(0), &psi.at(0), &phi.at(1), &psi.at(1), &phi.at(2), &psi.at(2), &phi.at(3), &psi.at(3))==EOF)  
 	throw runtime_error("Unexpected end of file phsd.dat at run " + to_string(inum));
-      
+
       feventH->SetParameters(eventId, nHadrons, nParticipants, ISub, INum, impactpar, phi, psi, ratqgp);
 
       for (int i = 0; i < nHadrons; i++) {
@@ -485,7 +602,7 @@ void PConverter::CreatePEventsHadrons()
 	    throw runtime_error("Unexpected end of file phsd.dat at run " + to_string(inum) + " particle " + to_string(i));
 	  }
 	}
-	      
+	 
 	if (TMath::Abs(pdgId) == 100121) pdgId = 1000010020*charge; // correct pdg-code for kinetic deuterons
 
 	if (TMath::Abs(pdgId) < 1000) { mesonId = PHSDId; baryonId = -1; }
@@ -528,8 +645,6 @@ void PConverter::CreatePEventsBaryons(Bool_t CreateUnstable)
     if (fConvertAnti == kTRUE) BaryonFrigaFileAnti = fopen(finputFileBaryonFrigaAntiUnstable, "r");
   }
   
- 
-  
   feventB = new PEventBaryons();
   ftreeB = new TTree (treename, treename);
   ftreeB->Branch ("event", "PEventBaryons", &feventB, 12800000);
@@ -564,8 +679,8 @@ void PConverter::CreatePEventsBaryons(Bool_t CreateUnstable)
 	  if(fscanf(BaryonFrigaFile, "%*i %i %f %f %f %f %f %f %f %i %i %i %*i %*i %i %i %f %f\n", &charge, &Px, &Py, &Pz, &Xpos, &Ypos, &Zpos, &Mass, &clusterId, &nBary, &baryonId, &prodId, &prodchanel, &prodtime, &Ebin)==EOF) {
 	    throw runtime_error("Unexpected end of file fort.891 at run " + to_string(inum) + "timestep" + to_string(it) + " particle " + to_string(i));
 	  }
-
 	  GetPdgIdBaryon(charge, pdgId, IsAnti);
+	 
 	  foutputPHQMD->cd();
 	  feventB->AddBaryon(pdgId, Px, Py, Pz, Xpos, Ypos, Zpos, Mass, clusterId, nBary, baryonId, prodId, prodchanel, prodtime, Ebin);
 	} 
@@ -623,11 +738,10 @@ void PConverter::MakeMaps()
    ** - to assign baryons to clusters. **/
 
   fbaryons2hadrons.resize(ftreeH->GetEntries());
-  fbaryonId2pos.resize(ftreeB->GetEntries());
   fclusterId2baryonIds.resize(ftreeB->GetEntries());
-  if (fpheader->GetNTime() > 29) throw runtime_error("Size of eventmap for baryons is too small for " + to_string(fpheader->GetNTime()) + " timesteps in fort.891");
+  
+  if (fpheader->GetNTime() > 29) throw runtime_error("Size of eventmap for baryons & eventmap for timesteps are too small for " + to_string(fpheader->GetNTime()) + " timesteps in fort.891.");
 
-  fts_time.resize(fpheader->GetNTime() + 1);
   foutputPHQMD->cd();
   for (int ievent = 0;ievent < ftreeH->GetEntries(); ievent++) {
     ftreeH->GetEntry(ievent);
@@ -636,12 +750,16 @@ void PConverter::MakeMaps()
 
   for (int ievent = 0; ievent < ftreeB->GetEntries(); ievent++) {
     ftreeB->GetEntry(ievent);
-    if (feventB->GetINum() == 1) fts_time.at(feventB->GetStepNr()) = feventB->GetTime();   
     feventId2EntryB[feventB->GetEventId()][feventB->GetStepNr()] = ievent;
+
+    auto it_time = feventId2time.find(feventB->GetEventId());
+    if (it_time != feventId2time.end())
+      feventId2time[feventB->GetEventId()].push_back(feventB->GetTime());
+    else 
+      feventId2time[feventB->GetEventId()] = {feventB->GetTime()};
 
     for (int ibaryon = 0 ; ibaryon < feventB->GetNAllBaryons() ; ibaryon++) {
       PBaryon baryon = feventB->GetBaryon(ibaryon);
-      fbaryonId2pos[ievent][baryon.GetBaryonId()] = ibaryon;
       Int_t clusterId = baryon.GetClusterId();
       Int_t baryonId = baryon.GetBaryonId();
       auto it = fclusterId2baryonIds[ievent].find(clusterId);
@@ -674,7 +792,11 @@ void PConverter::ConvertPHQMD()
    **    - for clusters only**: [dataset].phqmd_noanti.root
    ** b) root-file with complete events including the FREEZEOUT-TIME, -POSITION & -MOMENTUM (EventFreeze). 
    **    - for clusters & anticlusters: [dataset].phqmd_freeze.root
-   **    - for clusters only**: [dataset].phqmd_freeze_noanti.root. **/
+   **    - for clusters only**: [dataset].phqmd_freeze_noanti.root. 
+   ** c) root-file with complete events including the FREEZEOUT-TIME, -POSITION & -MOMENTUM (EventFreeze) + FREEZE-OUT COORDINATES for         
+   **    all timesteps (EventFemtoTs)
+   **    - for clusters & anticlusters: [dataset].phqmd_femto.root
+   **    - for clusters only**: [dataset].phqmd_femto_noanti.root. **/
 
   TString run_comment;
   if (fConvertMode == 0) run_comment = "physical clusters A < 10";
@@ -691,19 +813,28 @@ void PConverter::ConvertPHQMD()
     tree->Branch ("event", "UEvent", uevent);
   }
   
-  TFile *outputFreeze; TTree *treeFreeze; RunFreeze *headerFreeze; EventFreeze *eventFreeze;  
-  if (fWriteEventFreeze == kTRUE) {
-    headerFreeze = new RunFreeze ("phqmd", run_comment, fpheader->GetAProj(), fpheader->GetZProj(), fpheader->GetATarg(), fpheader->GetZTarg(), fpheader->GetELab(), fpheader->GetBMin(), fpheader->GetBMax(), fpheader->GetIBweight(), fpheader->GetNEvents());
+  TFile *outputFreeze; RunFreeze *headerFreeze; TTree *treeFreeze; TTree *treeFemto; EventFreeze *eventFreeze; EventFemtoTs *eventFemto;  
+  if (fWriteEventFreeze == kTRUE || fWriteEventFemto == kTRUE ) {
+    if (fWriteEventFemto == kTRUE)
+      headerFreeze = new RunFreeze ("phqmd", run_comment, fpheader->GetAProj(), fpheader->GetZProj(), fpheader->GetATarg(), fpheader->GetZTarg(), fpheader->GetELab(), fpheader->GetBMin(), fpheader->GetBMax(), fpheader->GetNTime(), fpheader->GetIBweight(), fpheader->GetNEvents());
+    else
+      headerFreeze = new RunFreeze ("phqmd", run_comment, fpheader->GetAProj(), fpheader->GetZProj(), fpheader->GetATarg(), fpheader->GetZTarg(), fpheader->GetELab(), fpheader->GetBMin(), fpheader->GetBMax(), fpheader->GetIBweight(), fpheader->GetNEvents());
     outputFreeze = new TFile (frootFileFreeze, "recreate");
     treeFreeze = new TTree ("events", "events");
     headerFreeze->Write();
     eventFreeze = new EventFreeze();
     treeFreeze->Branch ("event", "EventFreeze", &eventFreeze, 12800000);
+    if (fWriteEventFemto == kTRUE ) {
+      treeFemto = new TTree ("events_femto_ts", "events_femto_ts");   
+      eventFemto = new EventFemtoTs();
+      treeFemto->Branch ("event", "EventFemtoTs", &eventFemto, 12800000);
+    }
   }
   
   cout << "Clustertable used: " << fNameClustertable << endl;
   ClusterTablePrint();
   GetClusterList();
+  gRandom->SetSeed(0);
   
   cout << "Conversion mode " << fConvertMode;
   if (fConvertMode == 0)
@@ -711,11 +842,21 @@ void PConverter::ConvertPHQMD()
   if (fConvertMode == 1)
     cout << " : Conversion of physical clusters according to cluster table.\nConversion of clusters A > 7 independent of their physical existence." << endl;
 
+  vector<map<int,int>> baryonId2index_final;
+  baryonId2index_final.clear();
+  baryonId2index_final.resize(fpheader->GetSub() * fpheader->GetNum());
+  vector<map<int,pair<int,float>>> clbaryonId2index_final;
+  clbaryonId2index_final.resize(fpheader->GetSub() * fpheader->GetNum());
+  clbaryonId2index_final.clear();
+  vector<map<int,vector<int>>> index2clbaryonId_final;
+  index2clbaryonId_final.clear();
+  index2clbaryonId_final.resize(fpheader->GetSub() * fpheader->GetNum());
+
   foutputPHQMD->cd();
   for (int ieventB = 0; ieventB < ftreeB->GetEntries(); ieventB++) {
     foutputPHQMD->cd();
     ftreeB->GetEntry(ieventB);
-   
+    
     if(feventB->GetStepNr() == fpheader->GetNTime()) {
       auto it_ieventH = feventId2EntryH.find(feventB->GetEventId());
       Int_t ieventH = it_ieventH->second;
@@ -741,9 +882,9 @@ void PConverter::ConvertPHQMD()
 	  output->cd();
 	  uevent->AddParticle (index, hadron.GetPdg(), 0, -1, -1, -1, -1, child, hadron.Px(), hadron.Py(),hadron.Pz(), hadron.E(), hadron.XFreeze(), hadron.YFreeze(), hadron.ZFreeze(), hadron.TFreeze(), 1);
 	}	
-	if (fWriteEventFreeze == kTRUE) {
+	if (fWriteEventFreeze == kTRUE || fWriteEventFemto == kTRUE) {
 	  outputFreeze->cd();
-	  eventFreeze->AddParticle(hadron.GetPdg(), hadron.GetMomentum(), hadron.E(), hadron.GetPositionFreeze(), hadron.GetMomentumFreeze(), 0);
+	  eventFreeze->AddParticle(index, hadron.GetPdg(), hadron.GetMomentum(), hadron.E(), hadron.GetPositionFreeze(), hadron.GetMomentumFreeze(), 0);
 	}
 	index++;    		  
       } // end loop hadrons
@@ -758,9 +899,7 @@ void PConverter::ConvertPHQMD()
 	baryons_cluster.clear();
 	
 	for (Int_t baryonId : it_clId.second) {
-	  auto it_bary = fbaryonId2pos[ieventB].find(baryonId);
-	  PBaryon baryon = feventB->GetBaryon(it_bary->second);
-
+	  PBaryon baryon = feventB->GetBaryonId(baryonId);
 	  auto it_had = fbaryons2hadrons[ieventH].find(baryon.GetBaryonId());
 	  Int_t hadronId = it_had->second;
 	  PHadron hadron = feventH->GetHadron(hadronId);
@@ -768,14 +907,18 @@ void PConverter::ConvertPHQMD()
 	}
 	if (nbary == 1) {
 	  Int_t ibary  = 0;
+	  
 	  if (fWriteUnigen == kTRUE) {
 	    output->cd();
 	    uevent->AddParticle (index, baryons_cluster.at(ibary).fPdgId, 1, -1, -1, -1, -1, child, baryons_cluster.at(ibary).fP.X(), baryons_cluster.at(ibary).fP.Y(), baryons_cluster.at(ibary).fP.Z(), baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze.X(), baryons_cluster.at(ibary).fXTFreeze.Y(), baryons_cluster.at(ibary).fXTFreeze.Z(), baryons_cluster.at(ibary).fXTFreeze.T(), 1);
 	  }	  
-	  if (fWriteEventFreeze == kTRUE) {
+	  if (fWriteEventFreeze == kTRUE || fWriteEventFemto == kTRUE) {
 	    outputFreeze->cd();
-	    eventFreeze->AddParticle(baryons_cluster.at(ibary).fPdgId, baryons_cluster.at(ibary).fP, baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze, baryons_cluster.at(ibary).fPEFreeze, 1);
-	  }	  
+	    eventFreeze->AddParticle(index, baryons_cluster.at(ibary).fPdgId, baryons_cluster.at(ibary).fP, baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze, baryons_cluster.at(ibary).fPEFreeze, 1);
+	    if (fWriteEventFemto == kTRUE) {
+	      baryonId2index_final[feventB->GetEventId()-fFirstEvent][baryons_cluster.at(ibary).fBaryonId] = index;
+	    }
+	  }
 	  index++;
 	}
 	if (nbary > 1) {
@@ -788,11 +931,13 @@ void PConverter::ConvertPHQMD()
 	    CalculateClusterKin(baryons_cluster, Px, Py, Pz, energy);
 		
 	    //Calculate Cluster Freeze-out coordinates
+	    Float_t TimeProductionCluster = 0.0;
 	    Float_t TimeFreezeCluster = 0.0;
 	    Float_t deltaT; Int_t TsFreeze;  Float_t energyFreeze;
 	    TVector3 posfo_cluster = {0.0, 0.0, 0.0}; TVector3 pfo_cluster = {0.0, 0.0, 0.0};
 	    if (fFreezeCoords == kTRUE) {
-	      CalculateClusterFreezeOutTime(baryons_cluster, nbary, TsFreeze, TimeFreezeCluster, deltaT);
+	      CalculateClusterProductionTime(clusterId, nbary, TimeProductionCluster);
+	      CalculateClusterFreezeOutTime(baryons_cluster, nbary, TimeProductionCluster, TsFreeze, TimeFreezeCluster, deltaT);
 	      CalculateFreezeOutCoord(baryons_cluster, nbary, TsFreeze, TimeFreezeCluster, deltaT, posfo_cluster, pfo_cluster, energyFreeze);
 	      ftreeB->GetEntry(ieventB);
 	    }	 
@@ -800,22 +945,36 @@ void PConverter::ConvertPHQMD()
 	      output->cd();
 	      uevent->AddParticle (index, pdgId, 1, -1, -1, -1, -1, child, Px, Py, Pz, energy, posfo_cluster.X(), posfo_cluster.Y(), posfo_cluster.Z(), TimeFreezeCluster, 1);
 	    }	    
-	    if (fWriteEventFreeze == kTRUE) {
+	    if (fWriteEventFreeze == kTRUE || fWriteEventFemto == kTRUE) {
 	      outputFreeze->cd();
-	      eventFreeze->AddParticle(pdgId, Px, Py, Pz, energy, TimeFreezeCluster, posfo_cluster, pfo_cluster, energyFreeze, 1);
-	    }	    
+	      eventFreeze->AddParticle(index, pdgId, Px, Py, Pz, energy, TimeFreezeCluster, posfo_cluster, pfo_cluster, energyFreeze, 1);
+	    }
+	    if (fWriteEventFemto == kTRUE) {
+	      for (int ibary=0;ibary<nbary;ibary++) {
+		clbaryonId2index_final[feventB->GetEventId()-fFirstEvent][baryons_cluster.at(ibary).fBaryonId] = make_pair(index, TimeProductionCluster);
+		auto it = index2clbaryonId_final[feventB->GetEventId()-fFirstEvent].find(index);
+		if (it != index2clbaryonId_final[feventB->GetEventId()-fFirstEvent].end()) 
+		  it->second.emplace_back(baryons_cluster.at(ibary).fBaryonId);
+		else
+		  index2clbaryonId_final[feventB->GetEventId()-fFirstEvent][index] = {static_cast<int>(baryons_cluster.at(ibary).fBaryonId)};
+	      }
+	    }
 	    index++;
 	  }
 	  else {
 	    for (int ibary=0;ibary<nbary;ibary++) {
+	
 	      if (fWriteUnigen == kTRUE) {
 		output->cd();
 		uevent->AddParticle (index, baryons_cluster.at(ibary).fPdgId, 1, -1, -1, -1, -1, child, baryons_cluster.at(ibary).fP.X(), baryons_cluster.at(ibary).fP.Y(), baryons_cluster.at(ibary).fP.Z(), baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze.X(), baryons_cluster.at(ibary).fXTFreeze.Y(), baryons_cluster.at(ibary).fXTFreeze.Z(), baryons_cluster.at(ibary).fXTFreeze.T(), 1);
 		}	     
-	      if (fWriteEventFreeze == kTRUE) {
+	      if (fWriteEventFreeze == kTRUE || fWriteEventFemto == kTRUE) {
 		outputFreeze->cd();
-		eventFreeze->AddParticle(baryons_cluster.at(ibary).fPdgId, baryons_cluster.at(ibary).fP, baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze, baryons_cluster.at(ibary).fPEFreeze, 1);
-	      }	       
+		eventFreeze->AddParticle(index, baryons_cluster.at(ibary).fPdgId, baryons_cluster.at(ibary).fP, baryons_cluster.at(ibary).fEnergy, baryons_cluster.at(ibary).fXTFreeze, baryons_cluster.at(ibary).fPEFreeze, 1);
+	      }
+	      if (fWriteEventFemto == kTRUE) {
+		baryonId2index_final[feventB->GetEventId()-fFirstEvent][baryons_cluster.at(ibary).fBaryonId] = index;
+	      }
 	      index++;
 	    }
 	  }
@@ -825,11 +984,79 @@ void PConverter::ConvertPHQMD()
 	output->cd();
 	tree->Fill();
       }	      
-      if (fWriteEventFreeze == kTRUE) {
+      if (fWriteEventFreeze == kTRUE || fWriteEventFemto == kTRUE ) {
 	outputFreeze->cd();
 	treeFreeze->Fill();
-      }	
+      }
     } 
+  }
+  
+  if (fWriteEventFemto == kTRUE) { // Freeze-out position and momentum for baryons and clusters are written for all timesteps to be used for femtoscopy
+    
+    for (int ieventB = 0; ieventB < ftreeB->GetEntries(); ieventB++) { // Loop over all timesteps
+      foutputPHQMD->cd();
+      ftreeB->GetEntry(ieventB);
+
+      map<int, vector<PBaryon_cluster>> index2clbaryons;
+      index2clbaryons.clear();
+      
+      outputFreeze->cd();
+      eventFemto->Clear();
+      eventFemto->SetParameters(feventB->GetEventId(), feventB->GetStepNr(), feventB->GetTime()) ;
+
+      foutputPHQMD->cd(); // Loop over baryons
+      for (auto baryon : feventB->GetBaryonList()) {
+	
+	auto it = baryonId2index_final[feventB->GetEventId()-fFirstEvent].find(baryon.GetBaryonId()); // Check if baryon is final baryon
+	if (it != baryonId2index_final[feventB->GetEventId()-fFirstEvent].end()) {
+	  outputFreeze->cd();
+	  eventFemto->AddParticle(it->second, baryon.GetMomentum4(), baryon.GetPosition());
+	}
+	else {
+	  auto it_cl = clbaryonId2index_final[feventB->GetEventId()-fFirstEvent].find(baryon.GetBaryonId()); // Check if baryon is part of final cluster
+	  if (it_cl != clbaryonId2index_final[feventB->GetEventId()-fFirstEvent].end()) {
+	    if (it_cl ->second.second > feventB->GetTime()) continue;
+	    auto it_index = index2clbaryons.find(it_cl->second.first);
+	    if (it_index != index2clbaryons.end()) 
+	      it_index->second.emplace_back(PBaryon_cluster(baryon.GetBaryonId(), baryon.GetPdg(), baryon.GetMomentum(), baryon.GetMomentum4().E(), baryon.GetPosition()));
+	    else
+	      index2clbaryons[it_cl->second.first] = { PBaryon_cluster(baryon.GetBaryonId(), baryon.GetPdg(), baryon.GetMomentum(), baryon.GetMomentum4().E() , baryon.GetPosition()) };
+	  }
+	}
+      }
+      for (auto it : index2clbaryons) { // Check if clusters have the same baryon content than the final cluster
+	Bool_t IsFinalCluster = kFALSE;
+	auto it_final = index2clbaryonId_final[feventB->GetEventId()-fFirstEvent].find(it.first);
+	if (it.second.size() != it_final->second.size()) continue;
+	for (auto baryon : it.second) {
+	  Bool_t IsFinalClusterBary = kFALSE;
+	  for (auto baryonId_final : it_final->second)
+	    if (baryon.fBaryonId == baryonId_final) {
+	      IsFinalClusterBary = kTRUE;
+	      break;
+	    }
+	  if (IsFinalClusterBary == kFALSE) {
+	    IsFinalCluster = kFALSE;
+	    break;
+	  }
+	  else
+	    IsFinalCluster = kTRUE;
+	}
+	if (IsFinalCluster == kTRUE) {	  
+	  Float_t Px, Py, Pz, energy;
+	  CalculateClusterKin(it.second, Px, Py, Pz, energy);
+	  TLorentzVector P(Px, Py, Pz, energy);
+	  Float_t X, Y, Z;
+	  CalculateClusterPos(it.second, X, Y, Z);
+	  TVector3 Pos(X, Y, Z);
+ 
+	  outputFreeze->cd();
+	  eventFemto->AddParticle(it.first, P, Pos);
+	}
+      }
+      outputFreeze->cd();
+      treeFemto->Fill();
+    }
   }
 
   foutputPHQMD->Close();
@@ -840,11 +1067,13 @@ void PConverter::ConvertPHQMD()
     output->Close();
   }
   
-  if (fWriteEventFreeze == kTRUE) {
+  if (fWriteEventFreeze == kTRUE || fWriteEventFemto == kTRUE) {
     outputFreeze->cd();
     treeFreeze->Write();
+    if (fWriteEventFemto == kTRUE) treeFemto->Write();
     outputFreeze->Close();
   }
+
 
   cout << endl;
   cout << "Macro finished successfully." << endl;

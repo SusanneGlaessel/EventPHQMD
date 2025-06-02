@@ -14,6 +14,7 @@
 class ParticleFreeze : public TObject {
   
  private:
+  Int_t    fIndex;        // index of this particle
   Int_t    fPdgId;        // PDG code
   TVector3 fP;            // 3-momentum at final time (pz, py, pz) (GeV/c)
   Float_t  fEnergy;       // Energy (GeV/c)
@@ -28,6 +29,7 @@ class ParticleFreeze : public TObject {
   ParticleFreeze();
   virtual ~ParticleFreeze() = default;
 
+  inline Int_t   GetIndex()       const {return fIndex;}
   inline Int_t   GetPdg()         const {return fPdgId;}
   inline Float_t Px()             const {return fP.X();}
   inline Float_t Py()             const {return fP.Y();}
@@ -47,9 +49,9 @@ class ParticleFreeze : public TObject {
   inline TLorentzVector GetMomentumFreeze() const {return TLorentzVector(fPFreeze.X(),fPFreeze.Y(),fPFreeze.Z(),fEnergyFreeze);}
   inline Int_t   GetOrigin()      const {return fOrigin;}
 
-  ParticleFreeze(Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t Origin);
-  ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t TimeFreeze, TVector3 XFreeze, TVector3 PFreeze, Float_t EnergyFreeze, Int_t Origin);
-  ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t Origin);
+  ParticleFreeze(Int_t index, Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t Origin);
+  ParticleFreeze(Int_t index, Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t TimeFreeze, TVector3 XFreeze, TVector3 PFreeze, Float_t EnergyFreeze, Int_t Origin);
+  ParticleFreeze(Int_t index, Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t Origin);
   void Print(Option_t* = "") const;
 
   ClassDef(ParticleFreeze, 1);

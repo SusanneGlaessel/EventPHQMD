@@ -22,7 +22,8 @@ export CreateUnstab=1           ## = 1: create root file including unstable clus
 
 ## Options for step "ConvertToRoot" - output formats:
 export WriteUnigen=1            ## = 1: save full event in UniGen-format
-export WriteFreeze=0            ## = 0: save full event in format containing freeze-out momentum (only with FreezeCoords=1)
+export WriteFreeze=0            ## = 1: save full event in format containing freeze-out momentum (EventFreeze) (only possible with FreezeCoords=1)
+export WriteFemto=0             ## = 1: same as WriteFreeze + save coordinates for all timesteps (EventFemtoTs)
 export SaveRoot=1               ## = 1: keep root file with all information from PHQMD output
 
 ###############################################################
