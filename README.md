@@ -60,7 +60,7 @@ Run macro:
 	root -l convert_phqmd.C(TString indir, TString dataset,	Int_t firstevent,
 			Bool_t CreatePHQMDout, Bool_t FreezeCoords, Bool_t CreateWithUnstable,
 			Bool_t Convert, Bool_t ConvertAnti, Int_t ConvertMode, Bool_t WriteUnigen,
-			Bool_t WriteEventFreeze, Bool_t SavePHQMDout)
+			Bool_t WriteEventFreeze, Bool_t WriteEventFemto, Bool_t SavePHQMDout)
  
  For the conversion of clusters the cluster_table.dat is required. It
  can be easily modified/extended. Each line contains the following
@@ -68,3 +68,7 @@ Run macro:
  
 	name / pdgcode / number of protons / number of neutral baryons /
 	number of Lambdas / number of Simga0 / branching ratio
+
+To calculate cooridinates for particle-pairs for femtoscopy, run:
+
+	root -l read_events_femto.C
