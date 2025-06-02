@@ -400,22 +400,22 @@ void PConverter::CalculateClusterPos(std::vector<PBaryon_cluster> baryons_cluste
   }	   
 }
 
-void PConverter::CalculateClusterProductionTime(Int_t ievent_last_ts, Int_t clusterId, Int_t nbary, Float_t &TimeProductionCluster)
+void PConverter::CalculateClusterProductionTime(Int_t clusterId, Int_t nbary, Float_t &TimeProductionCluster)
 {
   /** Calculates formation time of a cluster. **/
 
-  Int_t last_step = fpheader->GetNTime();
-  Int_t current_step = last_step;
-  Float_t time_ts = feventB->GetTime();
+  Int_t final_step = fpheader->GetNTime();
   auto it_ievent = feventId2EntryB.find(feventB->GetEventId());
-  Int_t ievent_last_step = it_ievent->second[last_step];
-  auto it_last = fclusterId2baryonIds[ievent_last_step].find(clusterId);
-  std::vector<int> cluster_baryons_last;
-  cluster_baryons_last.clear();
-  for (auto baryId : it_last->second) 
-    cluster_baryons_last.push_back(baryId);
+  Int_t ievent_final_step = it_ievent->second[final_step];
+  auto it_cluster = fclusterId2baryonIds[ievent_final_step].find(clusterId);
+  
+  std::vector<int> cluster_baryons;
+  cluster_baryons.clear();
+  for (auto baryId : it_cluster->second) 
+    cluster_baryons.push_back(baryId);
 
-  for (int istep = last_step; istep >= 0; istep --) {
+  Float_t time = feventB->GetTime();
+  for (int istep = final_step; istep >= 0; istep --) {
     Int_t ievent_step = it_ievent->second[istep];
     ftreeB->GetEntry(ievent_step);
     
@@ -427,7 +427,7 @@ void PConverter::CalculateClusterProductionTime(Int_t ievent_last_ts, Int_t clus
       if (cluster_size_ts != nbary) break;
 
       Bool_t foundId = kFALSE;
-      for (int baryIdlast : cluster_baryons_last) {
+      for (int baryIdlast : cluster_baryons) {
 	foundId = kFALSE;
 	for (int baryIdTs : it->second) {
 	  if (baryIdlast == baryIdTs) foundId = kTRUE;
@@ -435,11 +435,11 @@ void PConverter::CalculateClusterProductionTime(Int_t ievent_last_ts, Int_t clus
 	if (foundId == kFALSE) break;
       }
       if (foundId == kFALSE) break;
-      time_ts = feventB->GetTime();
+      time = feventB->GetTime();
     }
   }
-  TimeProductionCluster = time_ts;
-  ftreeB->GetEntry(ievent_last_ts); 
+  TimeProductionCluster = time;
+  ftreeB->GetEntry(ievent_final_step); 
 }
 
 void PConverter::CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Float_t TimeProductionCluster, Int_t &TsFreeze, Float_t &TimeFreezeCluster, Float_t &deltaT)
@@ -742,6 +742,7 @@ void PConverter::MakeMaps()
 
   fbaryons2hadrons.resize(ftreeH->GetEntries());
   fclusterId2baryonIds.resize(ftreeB->GetEntries());
+  
   if (fpheader->GetNTime() > 29) throw runtime_error("Size of eventmap for baryons & eventmap for timesteps are too small for " + to_string(fpheader->GetNTime()) + " timesteps in fort.891.");
 
   foutputPHQMD->cd();
@@ -899,8 +900,6 @@ void PConverter::ConvertPHQMD()
 
 	std::vector<PBaryon_cluster> baryons_cluster;
 	baryons_cluster.clear();
-	std::vector<Float_t> cluster_fromation_time;
-	cluster_fromation_time.clear();
 	
 	for (Int_t baryonId : it_clId.second) {
 	  PBaryon baryon = feventB->GetBaryonId(baryonId);

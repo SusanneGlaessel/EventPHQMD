@@ -5,7 +5,8 @@
 using namespace std;
 
 ParticleFreeze::ParticleFreeze()
-  : fPdgId(0),
+  : fIndex(-1),
+    fPdgId(0),
     fEnergy(0.),
     fTimeFreeze(0.),
     fEnergyFreeze(0.),
@@ -16,8 +17,9 @@ ParticleFreeze::ParticleFreeze()
   fPFreeze.SetXYZ(0.,0.,0.);
 };
 
-ParticleFreeze::ParticleFreeze(Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze,  TLorentzVector PEFreeze, Int_t Origin)
-  : fPdgId(pdgId),
+ParticleFreeze::ParticleFreeze(Int_t index, Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze,  TLorentzVector PEFreeze, Int_t Origin)
+  : fIndex(index),
+    fPdgId(pdgId),
     fP(P),
     fEnergy(energy),
     fOrigin(Origin)
@@ -28,8 +30,9 @@ ParticleFreeze::ParticleFreeze(Int_t pdgId, TVector3 P, Float_t energy, TLorentz
   fEnergyFreeze = PEFreeze.T();
 };
 
-ParticleFreeze::ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t timeFreeze, TVector3 XFreeze, TVector3 PFreeze, Float_t energyFreeze, Int_t Origin)
-  : fPdgId(pdgId),
+ParticleFreeze::ParticleFreeze(Int_t index, Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t timeFreeze, TVector3 XFreeze, TVector3 PFreeze, Float_t energyFreeze, Int_t Origin)
+  : fIndex(index),
+    fPdgId(pdgId),
     fEnergy(energy),
     fTimeFreeze(timeFreeze),
     fXFreeze(XFreeze),
@@ -40,8 +43,9 @@ ParticleFreeze::ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, 
   fP.SetXYZ(Px, Py, Pz);
 };
 
-ParticleFreeze::ParticleFreeze(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XTFreeze,  TLorentzVector PEFreeze, Int_t Origin)
-  : fPdgId(pdgId),
+ParticleFreeze::ParticleFreeze(Int_t index, Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XTFreeze,  TLorentzVector PEFreeze, Int_t Origin)
+  : fIndex(index),
+    fPdgId(pdgId),
     fEnergy(energy),
     fOrigin(Origin)
 {
@@ -57,6 +61,7 @@ void ParticleFreeze::Print(Option_t* /*option*/) const
   // Print the data members to the standard output
   cout << "----------------------------------------------------------" << endl
        << "-I-                 Particle                 -I-" << endl
+       << "Index                                 : " << fIndex << endl
        << "PDG code                              : "  << fPdgId << endl
        << "Momentum (px, py, pz) (GeV)           : (" << fP.X() << ", " << fP.Y() << ", " << fP.Z() << ")" << endl
        << "Energy (GeV)                          : "  << fEnergy << endl

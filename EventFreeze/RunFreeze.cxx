@@ -19,6 +19,7 @@ RunFreeze::RunFreeze()
     fpTarg(0.0),
     fBMin(0.0),
     fBMax(0.0),
+    fNTime(-1),
     fIBweight(-1),
     fNEvents(0)
 {
@@ -35,6 +36,26 @@ RunFreeze::RunFreeze(const char* generator, const char* comment, Int_t aProj, In
     fELab(eLab),
     fBMin(bMin),
     fBMax(bMax),
+    fNTime(-1),
+    fIBweight(IBweight),
+    fNEvents(nEvents)
+{
+  fpProj = GetpProj();
+  fpTarg = GetpTarg();
+};
+
+RunFreeze::RunFreeze(const char* generator, const char* comment, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t nTime, Int_t IBweight, Int_t nEvents)
+  : TNamed("run","Run Header"),
+    fGenerator(generator),
+    fComment(comment),
+    fAProj(aProj),
+    fZProj(zProj),
+    fATarg(aTarg),
+    fZTarg(zTarg),
+    fELab(eLab),
+    fBMin(bMin),
+    fBMax(bMax),
+    fNTime(nTime),
     fIBweight(IBweight),
     fNEvents(nEvents)
 {
@@ -70,22 +91,23 @@ Float_t RunFreeze::GetBeamMomentum() const
 void RunFreeze::Print(Option_t* /*option*/) const
 {
   // Print all data members to the standard output
-  cout << "------------------------------------------------------------"    << endl
-       << "-I-                 Run Header                           -I-"    << endl
-       << "Generator                         : " << fGenerator << endl
-       << "Comment                           : " << fComment   << endl
-       << "Projectile mass number            : " << fAProj     << endl
-       << "Projectile charge                 : " << fZProj     << endl    
-       << "Target mass number                : " << fATarg     << endl
-       << "Target charge                     : " << fZTarg     << endl
-       << "Lab energy per nucleon            : " << fELab      << " AGeV"   << endl
-       << "Projectile momentum               : " << GetpProj() << " AGeV/c" << endl
-       << "Target momentum                   : " << GetpTarg() << " AGeV/c" << endl
-       << "Minimal impact parameter          : " << fBMin      << " fm"     << endl
-       << "Maximal impact parameter          : " << fBMax      << " fm"     << endl
-       << "Impact parameter weighting        : " << fIBweight               << endl
-       << "Requested number of events        : " << fNEvents   << endl
-       << "------------------------------------------------------------"    << endl;
+  cout << "--------------------------------------------------------------"    << endl
+       << "-I-                 Run Header                             -I-"    << endl
+       << "Generator                           : " << fGenerator << endl
+       << "Comment                             : " << fComment   << endl
+       << "Projectile mass number              : " << fAProj     << endl
+       << "Projectile charge                   : " << fZProj     << endl    
+       << "Target mass number                  : " << fATarg     << endl
+       << "Target charge                       : " << fZTarg     << endl
+       << "Lab energy per nucleon              : " << fELab      << " AGeV"   << endl
+       << "Projectile momentum                 : " << GetpProj() << " AGeV/c" << endl
+       << "Target momentum                     : " << GetpTarg() << " AGeV/c" << endl
+       << "Minimal impact parameter            : " << fBMin      << " fm"     << endl
+       << "Maximal impact parameter            : " << fBMax      << " fm"     << endl
+       << "Number of Timesteps in EventFemtoTs : " << fNTime     << endl
+       << "Impact parameter weighting          : " << fIBweight  << endl
+       << "Requested number of events          : " << fNEvents   << endl
+       << "--------------------------------------------------------------"    << endl;
       
 }
 ClassImp(RunFreeze);

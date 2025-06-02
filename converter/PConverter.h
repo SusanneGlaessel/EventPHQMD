@@ -94,7 +94,7 @@ class PConverter
   Float_t CalculateClusterBindingEnergy(std::vector<PBaryon_cluster> baryons_cluster);
   void CalculateClusterKin(std::vector<PBaryon_cluster> baryons_cluster, Float_t &Px, Float_t &Py, Float_t &Pz, Float_t &energy);
   void CalculateClusterPos(std::vector<PBaryon_cluster> baryons_cluster, Float_t &X, Float_t &Y, Float_t &Z);
-  void CalculateClusterProductionTime(Int_t ievent_last_ts, Int_t clusterId, Int_t nbary, Float_t &TimeProductionCluster);
+  void CalculateClusterProductionTime(Int_t clusterId, Int_t nbary, Float_t &TimeProductionCluster);
   void CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Float_t TimeProductionCluster, Int_t &TsFreeze, Float_t &TimeFreezeCluster, Float_t &deltaT);
   void CalculateFreezeOutCoord(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Int_t TsFreeze,  Float_t TimeFreezeCluster, Float_t deltaT, TVector3 &posfo_cluster, TVector3 &pfo_cluster, Float_t &energyFreeze);
 
