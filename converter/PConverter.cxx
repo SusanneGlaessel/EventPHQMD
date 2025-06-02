@@ -939,7 +939,7 @@ void PConverter::ConvertPHQMD()
 	    Float_t deltaT; Int_t TsFreeze;  Float_t energyFreeze;
 	    TVector3 posfo_cluster = {0.0, 0.0, 0.0}; TVector3 pfo_cluster = {0.0, 0.0, 0.0};
 	    if (fFreezeCoords == kTRUE) {
-	      CalculateClusterProductionTime(ieventB, clusterId, nbary, TimeProductionCluster);
+	      CalculateClusterProductionTime(clusterId, nbary, TimeProductionCluster);
 	      CalculateClusterFreezeOutTime(baryons_cluster, nbary, TimeProductionCluster, TsFreeze, TimeFreezeCluster, deltaT);
 	      CalculateFreezeOutCoord(baryons_cluster, nbary, TsFreeze, TimeFreezeCluster, deltaT, posfo_cluster, pfo_cluster, energyFreeze);
 	      ftreeB->GetEntry(ieventB);
