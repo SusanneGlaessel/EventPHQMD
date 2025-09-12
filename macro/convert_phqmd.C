@@ -79,6 +79,16 @@
  ** interactions. The information of the origin can be taken from the UniGen-output:
  ** UParticle* particle -> GetStatus(): = 0 kinetic deuteron, = 1 MST deuteron.
  **
+ ** ProcessIds for clusters: The UniGen variable fDecay allows to store 3 processIds with 
+ ** 3 digits each. 3 cluster-baryons to be stored are selected according to the following 
+ ** rule: First all processIds for Sigma0s are stored, then for Lambdas, protons and 
+ ** neutrons.
+ ** ProcessIds for channels with deuterons are changed to make them positive 3-digits:
+ ** PHQMD processId -> UniGen fDecay: 1101 -> 701; -1101 -> 801; 1301 -> 703; -1301 -> 803.
+ **
+ ** ParentIds: In the current PHQMD version PHQMD52_Winn only parentIds for phi and K* are 
+ ** available and stored.
+ **
  ** Inputfiles need to be from PHQMD MST-mode.
  **/             
 
@@ -96,13 +106,13 @@ void convert_phqmd(TString indir             = "",
 		   Int_t  firstevent         = 0,
 		   Bool_t CreatePHQMDout     = kTRUE,
 		   Bool_t FreezeCoords       = kTRUE,
-		   Bool_t CreateWithUnstable = kTRUE,
+		   Bool_t CreateWithUnstable = kFALSE,
 		   Bool_t Convert            = kTRUE,
 		   Int_t  ConvertMode        = 1,
 		   Bool_t ConvertAnti        = kTRUE,
 		   Bool_t WriteUnigen        = kTRUE,
 		   Bool_t WriteEventFreeze   = kTRUE,
-		   Bool_t WriteEventFemto    = kTRUE,
+		   Bool_t WriteEventFemto    = kFALSE,
 		   Bool_t SavePHQMDout       = kTRUE)
 {
   PConverter* pconverter = new PConverter();

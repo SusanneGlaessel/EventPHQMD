@@ -32,22 +32,22 @@ ParticleFreeze EventFreeze::GetParticle(Int_t index) const
   return ((ParticleFreeze) fParticles.at(index));
 }
 
-void EventFreeze::AddParticle(Int_t index, Int_t pdgId, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t origin)
+void EventFreeze::AddParticle(Int_t index, Int_t pdgId, Int_t parent, Int_t decay, TVector3 P, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t origin, Int_t weight)
 {
-  fParticles.push_back(ParticleFreeze(index, pdgId, P, energy, XTFreeze,  PEFreeze, origin));
+  fParticles.push_back(ParticleFreeze(index, pdgId, parent, decay, P, energy, XTFreeze,  PEFreeze, origin, weight));
   
   fNpa += 1;
 }; 
 
-void EventFreeze::AddParticle(Int_t index, Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t timefo, TVector3 posfo, TVector3 pfo, Float_t energyfo, Int_t origin)
+void EventFreeze::AddParticle(Int_t index, Int_t pdgId, Int_t parent, Int_t decay, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Float_t timefo, TVector3 posfo, TVector3 pfo, Float_t energyfo, Int_t origin, Int_t weight)
 {
-  fParticles.push_back(ParticleFreeze(index, pdgId, Px, Py, Pz, energy, timefo, posfo, pfo, energyfo, origin));
+  fParticles.push_back(ParticleFreeze(index, pdgId, parent, decay, Px, Py, Pz, energy, timefo, posfo, pfo, energyfo, origin, weight));
   fNpa += 1;
 }; 
 
-void EventFreeze::AddParticle(Int_t index, Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t origin)
+void EventFreeze::AddParticle(Int_t index, Int_t pdgId, Int_t parent, Int_t decay, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Int_t origin, Int_t weight)
 {  
-  fParticles.push_back(ParticleFreeze(index, pdgId, Px, Py, Pz, energy, XTFreeze, PEFreeze, origin));
+  fParticles.push_back(ParticleFreeze(index, pdgId, parent, decay, Px, Py, Pz, energy, XTFreeze, PEFreeze, origin, weight));
     fNpa += 1;
 };
 
