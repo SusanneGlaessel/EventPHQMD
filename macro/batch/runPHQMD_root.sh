@@ -41,11 +41,16 @@ if [ "$ConvertToRoot" == 1 ]; then
     echo "Convert PHQMD output into root"
     export script_convert="convert_phqmd.C"
     mkdir -p $OUTROOT
+    if [ "$ConvertToRoot" == 1 ]; then
+	CLUSTERDIR=allclusters
+    else
+	CLUSTERDIR=smallclusters
+    fi
     if [ "$WriteUnigen" == 1 ]; then
-	    mkdir -p $OUTROOT/unigen
+	mkdir -p $OUTROOT/unigen/$CLUSTERDIR
     fi
     if [ "$WriteFreeze" == 1 ]; then
-	    mkdir -p $OUTROOT/freeze
+	mkdir -p $OUTROOT/freeze/$CLUSTERDIR
     fi	
 
     cd $CONVERTDIR/macro
