@@ -25,6 +25,7 @@ PEventBaryons::PEventBaryons()
 void PEventBaryons::AddBaryon(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t Xpos, Float_t Ypos, Float_t Zpos, Float_t Mass, Int_t clusterId, Int_t nBary, Int_t baryonId, Int_t prodId, Int_t prodchanel, Float_t TimeFreeze, Float_t Ebin)
 {
   fBaryons.push_back(PBaryon(pdgId, Px, Py, Pz, Xpos, Ypos, Zpos, Mass, clusterId, nBary, baryonId, prodId, prodchanel, TimeFreeze, Ebin));
+  if (fBaryons.size() > fNBaryons + fNAntiBaryons) throw runtime_error("\n Too many baryons are added. Only " + to_string(fNBaryons) + " baryons and " + to_string(fNAntiBaryons) + " anti-baryons are listed in fort.891/fort.881.");
   fId2Baryon [baryonId] = fNpa;  
   fNpa += 1;
 };
