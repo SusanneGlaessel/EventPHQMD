@@ -978,7 +978,7 @@ void PConverter::ConvertPHQMD()
 	auto it_bar2had = fbaryons2hadrons[ieventH].find(hadron.GetBaryonId());	
 	if (it_bar2had != fbaryons2hadrons[ieventH].end()) continue; // baryon is participating in MST
 
-	if (TMath::Abs(hadron.GetPdg()) == 333 || TMath::Abs(hadron.GetPdg()) == 313 || TMath::Abs(hadron.GetPdg()) == 323) parentId = hadron.GetInfoId();
+	if (hadron.GetInfoId() != -1 && (hadron.GetProcessId() == 5 || hadron.GetProcessId() == 7)) parentId = hadron.GetInfoId();
 	else parentId = -1;
 
 	Int_t processId = ChangeProcessId3digits(hadron.GetProcessId());
