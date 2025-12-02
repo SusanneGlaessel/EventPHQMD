@@ -19,8 +19,7 @@ class PHadron : public TObject {
   TVector3       fP;            // 3-momentum at final time (pz, py, pz) (GeV/c)
   Float_t        fEnergy;       // Energy (GeV)
   Int_t          fProcessId;    // type of process / reaction from which particle comes
-  Int_t          fInfoId;       // for baryons: participation in MST-routine: =1: baryon is in MST-output; =-1: NOT in MST-output,
-                                // for mesons: information about parents (parent PHSD-Id)
+  Int_t          fParentId;     // information about parents (parent PHSD-Id)
   Int_t          fBaryonId;     // baryon-Id (= -1 for mesons)
   Int_t          fMesonId;      // meson-Id (= -1 for baryons)
   TLorentzVector fXTFreeze;     // Position & time at freezeout (fm, fm, fm, fm/c)
@@ -34,8 +33,8 @@ class PHadron : public TObject {
   
   PHadron();
   virtual ~PHadron();
-  PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId, Float_t xposfo, Float_t yposfo, Float_t zposfo , Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t energyfo, Float_t densityBfo, Float_t densityEfo, Float_t densityBC, Float_t densityEC);
-  PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t infoId, Int_t baryonId, Int_t mesonId);
+  PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t parentId, Int_t baryonId, Int_t mesonId, Float_t xposfo, Float_t yposfo, Float_t zposfo , Float_t timefo, Float_t xpfo, Float_t ypfo, Float_t zpfo, Float_t energyfo, Float_t densityBfo, Float_t densityEfo, Float_t densityBC, Float_t densityEC);
+  PHadron(Int_t pdgId, Float_t Px, Float_t Py, Float_t Pz, Float_t energy, Int_t processId, Int_t parentId, Int_t baryonId, Int_t mesonId);
 
   
   inline Int_t    GetPdg()                  const {return fPdgId;}
@@ -47,7 +46,7 @@ class PHadron : public TObject {
   inline Float_t  E()                       const {return fEnergy;}
   inline Float_t  Mass()                    const {return TMath::Sqrt(fEnergy*fEnergy - fP.X()*fP.X() - fP.Y()*fP.Y() - fP.Z()*fP.Z());}
   inline Int_t    GetProcessId()            const {return fProcessId;}
-  inline Int_t    GetInfoId()               const {return fInfoId;}
+  inline Int_t    GetParentId()             const {return fParentId;}
   inline Int_t    GetBaryonId()             const {return fBaryonId;}
   inline Int_t    GetMesonId()              const {return fMesonId;}
   inline Float_t  XFreeze()                 const {return fXTFreeze.X();}
@@ -75,7 +74,7 @@ class PHadron : public TObject {
   inline void SetMomentum(TLorentzVector P) {fP.SetXYZ(P.X(), P.Y(), P.Z()); fEnergy = P.T();}
   inline void SetE(Float_t energy)          {fEnergy = energy;}
   inline void SetProcessId(Int_t processId) {fProcessId = processId;}
-  inline void SetInfoId(Int_t infoId)       {fInfoId = infoId;}
+  inline void SetParentId(Int_t parentId)   {fParentId = parentId;}
   inline void SetBaryonId(Int_t baryonId)   {fBaryonId = baryonId;}
   inline void SetMesonId(Int_t mesonId)     {fMesonId = mesonId;}
   inline void SetXFreeze(Float_t xposfo)    {fXTFreeze.SetX(xposfo);}

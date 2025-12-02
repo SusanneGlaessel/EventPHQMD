@@ -1,3 +1,3 @@
 {
-gSystem->Load("path_to_installation/install/lib/libEventPHQMD.dylib");
+  gSystem->Load("path_to_installation/install/lib/libEventPHQMD.dylib");
 }

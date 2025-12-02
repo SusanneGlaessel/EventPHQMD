@@ -49,10 +49,11 @@ class PConverter
     TLorentzVector fPEFreeze;
     Int_t fBaryonId;
     Int_t fProcessId;
+    Int_t fParentId;
     
-  PBaryon_cluster(Int_t baryonId, Int_t PdgId,  Int_t processId, TVector3 P, Float_t mass, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Float_t Ebin) : fBaryonId(baryonId), fPdgId(PdgId), fProcessId(processId), fP(P), fMass(mass), fEnergy(energy), fXTFreeze(XTFreeze), fPEFreeze(PEFreeze), fEbin(Ebin) { fX = {0.0, 0.0, 0.0}; };
-  PBaryon_cluster(Int_t baryonId, Int_t PdgId, TVector3 P, Float_t energy, TVector3 X) : fBaryonId(baryonId), fPdgId(PdgId), fProcessId(-1), fP(P), fEnergy(energy), fX(X) {fMass = TMath::Sqrt(energy*energy - P.Mag2()), fXTFreeze = {0.0, 0.0, 0.0, 0.0}; fPEFreeze = {0.0, 0.0, 0.0, 0.0}; };
-  PBaryon_cluster(Int_t PdgId, Float_t Ebin) : fBaryonId(-1), fPdgId(0), fProcessId(-1), fMass(0.0), fEnergy(0.0), fEbin(Ebin) { fP = {0.0, 0.0, 0.0}; fXTFreeze = {0.0, 0.0, 0.0, 0.0}; fX = {0.0, 0.0, 0.0}; fPEFreeze = {0.0, 0.0, 0.0, 0.0}; };
+  PBaryon_cluster(Int_t baryonId, Int_t PdgId,  Int_t processId, Int_t parentId, TVector3 P, Float_t mass, Float_t energy, TLorentzVector XTFreeze, TLorentzVector PEFreeze, Float_t Ebin) : fBaryonId(baryonId), fPdgId(PdgId), fProcessId(processId), fParentId(parentId), fP(P), fMass(mass), fEnergy(energy), fXTFreeze(XTFreeze), fPEFreeze(PEFreeze), fEbin(Ebin) { fX = {0.0, 0.0, 0.0}; };
+  PBaryon_cluster(Int_t baryonId, Int_t PdgId, TVector3 P, Float_t energy, TVector3 X) : fBaryonId(baryonId), fPdgId(PdgId), fProcessId(-1), fParentId(-1), fP(P), fEnergy(energy), fX(X) {fMass = TMath::Sqrt(energy*energy - P.Mag2()), fXTFreeze = {0.0, 0.0, 0.0, 0.0}; fPEFreeze = {0.0, 0.0, 0.0, 0.0}; };
+  PBaryon_cluster(Int_t PdgId, Float_t Ebin) : fBaryonId(-1), fPdgId(0), fProcessId(-1), fParentId(-1), fMass(0.0), fEnergy(0.0), fEbin(Ebin) { fP = {0.0, 0.0, 0.0}; fXTFreeze = {0.0, 0.0, 0.0, 0.0}; fX = {0.0, 0.0, 0.0}; fPEFreeze = {0.0, 0.0, 0.0, 0.0}; };
   };
 
   struct ClusterEntry {
@@ -96,7 +97,7 @@ class PConverter
   void GetBaryonContent(std::vector<PBaryon_cluster> baryons_cluster, Int_t &nProt, Int_t &nBary0, Int_t &nLamb, Int_t &nSigm, Int_t &charge);
   Float_t CalculateClusterBindingEnergy(std::vector<PBaryon_cluster> baryons_cluster);
   void CalculateClusterKin(std::vector<PBaryon_cluster> baryons_cluster, Float_t &Px, Float_t &Py, Float_t &Pz, Float_t &energy);
-  void GetClusterProcessId(std::vector<PBaryon_cluster> baryons_cluster, Int_t &processId);
+  void GetClusterProcessParentId(std::vector<PBaryon_cluster> baryons_cluster, Int_t &processId, Int_t &parentId);
   void CalculateClusterPos(std::vector<PBaryon_cluster> baryons_cluster, Float_t &X, Float_t &Y, Float_t &Z);
   void CalculateClusterProductionTime(Int_t clusterId, Int_t nbary, Float_t &TimeProductionCluster);
   void CalculateClusterFreezeOutTime(std::vector<PBaryon_cluster> baryons_cluster, Int_t nbary, Float_t TimeProductionCluster, Int_t &TsFreeze, Float_t &TimeFreezeCluster, Float_t &deltaT);

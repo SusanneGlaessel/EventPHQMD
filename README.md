@@ -7,7 +7,7 @@ EventPHQMD converts PHQMD output files into:
 including freeze-out momentum and optionally, in addition, coordinates
 for all timesteps)
 
-branch **PHQMD52 _Winn** is compatible with PHQMD version PHQMD52-Winn_2023
+branch **PHSD-PHQMD** is compatible with version PHSD-PHQMD
 
 ## Requirements
 
@@ -22,7 +22,7 @@ UniGen classes are not required, they are part of the installation.
 
 Clone
 
-	git clone --branch PHQMD52_Winn git@github.com:SusanneGlaessel/EventPHQMD
+	git clone --branch PHSD-PHQMD git@github.com:SusanneGlaessel/EventPHQMD
 
 Set rootsource
 

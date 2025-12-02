@@ -42,11 +42,12 @@ PRun::PRun()
     fEvasy(-1),
     fEtapair(-1),
     fIFragWig(-1),
-    fIRelQmd(-1)
+    fIRelQmd(-1),
+    fIAntiprot(0)
 {
 };
 
-PRun::PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Float_t DBimp, Int_t NUM, Int_t ISUBS, Float_t Tstart, Float_t Tfinal, Float_t dT, Int_t NTIME, Int_t Ieos, Int_t Iglue, Int_t Iphqmd, Int_t Inuclei, Int_t Ires, Int_t Idilept, Int_t Icq, Int_t Ihard, Int_t Idqpm, Int_t Eyuk, Int_t Easy, Int_t Epair, Int_t Ecoul, Float_t Evasy, Int_t Etapair, Int_t IfragWig, Int_t Irelqmd)
+PRun::PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Float_t DBimp, Int_t NUM, Int_t ISUBS, Float_t Tstart, Float_t Tfinal, Float_t dT, Int_t NTIME, Int_t Ieos, Int_t Iglue, Int_t Iphqmd, Int_t Inuclei, Int_t Ires, Int_t Idilept, Int_t Icq, Int_t Ihard, Int_t Idqpm, Int_t Eyuk, Int_t Easy, Int_t Epair, Int_t Ecoul, Float_t Evasy, Int_t Etapair, Int_t IfragWig, Int_t Irelqmd, Int_t Iantiprot)
   : TNamed("run","Run Header"),
     fGenerator(generator),
     fAProj(aProj),
@@ -80,7 +81,8 @@ PRun::PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t z
     fEvasy(Evasy),
     fEtapair(Etapair),
     fIFragWig(IfragWig),
-    fIRelQmd(Irelqmd)
+    fIRelQmd(Irelqmd),
+    fIAntiprot(Iantiprot)
 {
 
   fpProj = TMath::Sqrt(eLab*fProtonMass/2);
@@ -187,7 +189,7 @@ TString PRun::GetPHSDver() const
 {
   TString PHSDvName;
   if (fIDqpm == 0) PHSDvName = "PHSD4.X";
-  if (fIDqpm == 1) PHSDvName = "PHSD5.X with (T,muB) for QGP";
+  if (fIDqpm == 1) PHSDvName = "PHSD5.X with DQPM(T,muB) for QGP";
   return PHSDvName;
 } 
 
@@ -234,7 +236,7 @@ void PRun::Print(Option_t* /*option*/) const
        << "Dileptons                         : " << GetDilepName()          << endl
        << "Vector meson spectral function    : " << GetMesSpecName()        << endl
        << "With charm and bottom             : " << GetYesNo(fIHard)        << endl
-       << "PHSD version                      :"  << GetPHSDver()            << endl
+       << "PHSD version                      : " << GetPHSDver()            << endl
        << "Yukawa potential in SACA          : " << GetYesNo(fEyuk)         << endl
        << "Asymmetry energy in SACA          : " << GetYesNo(fEasy)         << endl
        << "Coul. energy for fragm. select.   : " << GetYesNo(fEcoul)        << endl
@@ -243,7 +245,8 @@ void PRun::Print(Option_t* /*option*/) const
        << "Pairing pot. exponant in SACA     : " << GetYesNo(fEtapair)      << endl
        << "Light clusters acc. to Wig. dens. : " << GetYesNo(fIFragWig)     << endl
        << "Relaxation of inital nuclei dt=0.5: " << GetYesNo(fIRelQmd)      << endl
+       << "Antiproton beam (projectile)      : " << GetYesNo(TMath::Abs(fIAntiprot))    << endl
        << "------------------------------------------------------------"    << endl;
-      
+
 }
 ClassImp(PRun);

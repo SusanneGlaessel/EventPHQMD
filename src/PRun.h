@@ -50,13 +50,14 @@ class PRun : public TNamed {
   Float_t fEvasy;          // Asymmetry potential energy at normal density (MeV)
   Float_t fEtapair;        // Pairing potential exponant (0.->only forbids unbound isotopes, 1., 0.65, 0.35 or 0.25) in SACA 
   Int_t   fIFragWig;       // =1: Light clusters formation according to the Wigner density, =0: no
-  Int_t   fIRelQmd;        // =1: relaxation of initial nucleons dt = 0.5; =0: without 
+  Int_t   fIRelQmd;        // =1: relaxation of initial nucleons dt = 0.5; =0: without
+  Int_t   fIAntiprot;      // =-1: for antiproton beam (projectile), =0 for all other projectiles (default=0)
   
  public:
 
   PRun();
   virtual ~PRun();
-  PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Float_t DBimp, Int_t NUM, Int_t ISUBS, Float_t Tstart, Float_t Tfinal, Float_t dT, Int_t NTIME, Int_t Ieos, Int_t Iglue, Int_t Iphqmd, Int_t Inuclei, Int_t Ires, Int_t Idilept, Int_t Icq, Int_t Ihard, Int_t Idqpm, Int_t Eyuk, Int_t Easy, Int_t Epair, Int_t Ecoul, Float_t Evasy, Int_t Etapair, Int_t IfragWig, Int_t Irelqmd);
+  PRun(const char* generator, Int_t aProj, Int_t zProj, Int_t aTarg, Int_t zTarg, Float_t eLab, Float_t bMin, Float_t bMax, Int_t IBweight, Float_t DBimp, Int_t NUM, Int_t ISUBS, Float_t Tstart, Float_t Tfinal, Float_t dT, Int_t NTIME, Int_t Ieos, Int_t Iglue, Int_t Iphqmd, Int_t Inuclei, Int_t Ires, Int_t Idilept, Int_t Icq, Int_t Ihard, Int_t Idqpm, Int_t Eyuk, Int_t Easy, Int_t Epair, Int_t Ecoul, Float_t Evasy, Int_t Etapair, Int_t IfragWig, Int_t Irelqmd, Int_t Iantiprot);
   void Print(Option_t* = "") const;
 
   inline TString GetGenerartor() const {return fGenerator;}      
@@ -93,6 +94,7 @@ class PRun : public TNamed {
   inline Float_t GetEtapair()    const {return fEtapair;}      
   inline Int_t   GetIFragWig()   const {return fIFragWig;}
   inline Int_t   GetIRelQmd()    const {return fIRelQmd;}
+  inline Int_t   GetIAntiprot()  const {return fIAntiprot;}
 
   Float_t GetpProj() const;   
   Float_t GetpTarg() const;

@@ -1,7 +1,7 @@
 //************************************************************************************************************************************************
 /** author: Susanne Glaessel (Universitaet Frankfurt)
- ** Macro for creating a root-file from all PHQMD output files (PHQMD version 5.2 Winn) 
- ** and/or a UniGen-file with complete events (and/or root-file with freeze-out
+ ** Macro for creating a root-file from all PHSD-PHQMD output files and/or   
+ ** a UniGen-file with complete events (and/or root-file with freeze-out
  ** coordinates)
  ** 
  ** This macro:
@@ -79,15 +79,14 @@
  ** interactions. The information of the origin can be taken from the UniGen-output:
  ** UParticle* particle -> GetStatus(): = 0 kinetic deuteron, = 1 MST deuteron.
  **
- ** ProcessIds for clusters: The UniGen variable fDecay allows to store 3 processIds with 
- ** 3 digits each. 3 cluster-baryons to be stored are selected according to the following 
- ** rule: First all processIds for Sigma0s are stored, then for Lambdas, protons and 
- ** neutrons.
+ ** ProcessIds and ParentIdsfor clusters: The UniGen variables fDecay and fParent allow  
+ ** to store 3 Ids with3 digits each. 3 cluster-baryons to be stored are selected according  
+ ** to the following rule: First all Ids for Sigma0s are stored, then for Lambdas, protons  
+ ** and neutrons.
  ** ProcessIds for channels with deuterons are changed to make them positive 3-digits:
  ** PHQMD processId -> UniGen fDecay: 1101 -> 701; -1101 -> 801; 1301 -> 703; -1301 -> 803.
- **
- ** ParentIds: In the current PHQMD version PHQMD52_Winn only parentIds for phi and K* are 
- ** available and stored.
+ ** ParentIds are changed into 3-digits by keeping only the last 3-digits (The digits 
+ ** specific to the event are removed.).
  **
  ** Inputfiles need to be from PHQMD MST-mode.
  **/             
@@ -102,7 +101,7 @@
 #include "TTree.h"
 
 void convert_phqmd(TString indir             = "",
-		   TString dataset           = "00001",
+		   TString dataset           = "",
 		   Int_t  firstevent         = 0,
 		   Bool_t CreatePHQMDout     = kTRUE,
 		   Bool_t FreezeCoords       = kTRUE,
