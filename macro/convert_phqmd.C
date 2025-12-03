@@ -83,8 +83,10 @@
  ** to store 3 Ids with3 digits each. 3 cluster-baryons to be stored are selected according  
  ** to the following rule: First all Ids for Sigma0s are stored, then for Lambdas, protons  
  ** and neutrons.
+ **
  ** ProcessIds for channels with deuterons are changed to make them positive 3-digits:
  ** PHQMD processId -> UniGen fDecay: 1101 -> 701; -1101 -> 801; 1301 -> 703; -1301 -> 803.
+ **
  ** ParentIds are changed into 3-digits by keeping only the last 3-digits (The digits 
  ** specific to the event are removed.).
  **
